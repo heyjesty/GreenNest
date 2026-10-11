@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   const where = ['is_published = 1'];
   const params = [];
   if (category) { where.push('category = ?'); params.push(category); }
-  if (q) { where.push('(title LIKE ? OR excerpt LIKE ?)'); params.push(`%${q}%`, `%${q}%`); }
+  if (q) { where.push('(title ILIKE ? OR excerpt ILIKE ?)'); params.push(`%${q}%`, `%${q}%`); }
   const whereSql = where.join(' AND ');
 
   const [{ total }] = await db.query(`SELECT COUNT(*) AS total FROM blog_posts WHERE ${whereSql}`, params);

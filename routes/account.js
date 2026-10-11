@@ -29,7 +29,7 @@ router.post('/orders/:number/cancel', async (req, res, next) => {
     await db.transaction(async (conn) => {
       await conn.query("UPDATE orders SET status = 'cancelled' WHERE id = ?", [order.id]);
       await conn.query(
-        'UPDATE products p JOIN order_items oi ON oi.product_id = p.id SET p.stock = p.stock + oi.quantity WHERE oi.order_id = ?',
+        'UPDATE products p SET stock = p.stock + oi.quantity FROM order_items oi WHERE oi.product_id = p.id AND oi.order_id = ?',
         [order.id]);
     });
     req.session.flash = { type: 'success', message: `Order ${order.order_number} has been cancelled.` };

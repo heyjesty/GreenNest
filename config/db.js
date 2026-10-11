@@ -1,52 +1,83 @@
-const mysql = require('mysql2/promise');
+const { Pool, types } = require('pg');
 
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'greennest',
-};
+// Return NUMERIC (prices) and BIGINT (COUNT/SUM) as JS numbers instead of strings.
+types.setTypeParser(1700, (v) => (v === null ? null : parseFloat(v)));
+types.setTypeParser(20, (v) => (v === null ? null : parseInt(v, 10)));
 
-// Cloud MySQL providers (TiDB Cloud, Aiven, PlanetScale...) require TLS.
-if (process.env.DB_SSL === 'true') {
-  dbConfig.ssl = { minVersion: 'TLSv1.2', rejectUnauthorized: true };
+// SSL is configured below, so drop `sslmode` from the URL (pg warns about its meaning changing).
+const rawUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+const connectionString = rawUrl.replace(/([?&])sslmode=[^&]*&?/, '$1').replace(/[?&]$/, '') || undefined;
+if (!connectionString) {
+  console.warn('DATABASE_URL is not set — add it to .env (see README).');
 }
 
-const pool = mysql.createPool({
-  ...dbConfig,
-  waitForConnections: true,
-  connectionLimit: process.env.VERCEL ? 3 : 10,
-  decimalNumbers: true,
-  dateStrings: false,
+const isLocal = /@(localhost|127\.0\.0\.1)[:/]/.test(connectionString || '');
+
+const pool = new Pool({
+  connectionString,
+  ssl: isLocal ? false : { rejectUnauthorized: true },
+  max: process.env.VERCEL ? 3 : 10,
+  idleTimeoutMillis: 10000,
 });
 
-/** Run a query and return rows. */
-async function query(sql, params = []) {
-  const [rows] = await pool.query(sql, params);
-  return rows;
+/**
+ * Lets the app keep writing `?` placeholders.
+ *  - scalar            → $n
+ *  - [a, b, c]         → $1, $2, $3            (for `IN (?)`)
+ *  - [[a, b], [c, d]]  → ($1, $2), ($3, $4)    (for bulk `VALUES ?`)
+ */
+function prepare(sql, params = []) {
+  const values = [];
+  const ph = (v) => { values.push(v); return `$${values.length}`; };
+  let i = 0;
+  const text = sql.replace(/\?/g, () => {
+    const p = params[i++];
+    if (Array.isArray(p) && Array.isArray(p[0])) return p.map((row) => `(${row.map(ph).join(', ')})`).join(', ');
+    if (Array.isArray(p)) return p.length ? p.map(ph).join(', ') : 'NULL';
+    return ph(p);
+  });
+  return { text, values };
 }
 
-/** Run a query and return the first row (or null). */
-async function one(sql, params = []) {
-  const rows = await query(sql, params);
-  return rows[0] || null;
+function runner(client) {
+  const query = async (sql, params) => (await client.query(prepare(sql, params))).rows;
+  const exec = async (sql, params) => client.query(prepare(sql, params)); // full result (rowCount)
+  const one = async (sql, params) => (await query(sql, params))[0] || null;
+  return { query, exec, one };
 }
 
-/** Run `fn(conn)` inside a transaction. */
+const { query, exec, one } = runner(pool);
+
+/** Run `fn({ query, exec, one })` inside a transaction. */
 async function transaction(fn) {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
-    await conn.beginTransaction();
-    const result = await fn(conn);
-    await conn.commit();
+    await client.query('BEGIN');
+    const result = await fn(runner(client));
+    await client.query('COMMIT');
     return result;
   } catch (err) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     throw err;
   } finally {
-    conn.release();
+    client.release();
   }
 }
 
-module.exports = { pool, query, one, transaction, dbConfig };
+/** INSERT a plain object and return the new id. */
+async function insert(table, obj, db = { query }) {
+  const cols = Object.keys(obj);
+  const rows = await db.query(
+    `INSERT INTO ${table} (${cols.join(', ')}) VALUES (?) RETURNING id`,
+    [cols.map((c) => obj[c])]
+  );
+  return rows[0].id;
+}
+
+/** UPDATE a row by id from a plain object. */
+async function update(table, id, obj, db = { query }) {
+  const cols = Object.keys(obj);
+  await db.query(`UPDATE ${table} SET ${cols.map((c) => `${c} = ?`).join(', ')} WHERE id = ?`, [...cols.map((c) => obj[c]), id]);
+}
+
+module.exports = { pool, query, exec, one, transaction, insert, update, prepare };

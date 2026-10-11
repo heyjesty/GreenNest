@@ -1,14 +1,14 @@
 /**
- * Creates the database, tables and starter content.
- *   npm run db:setup         -> create if missing, seed empty tables
- *   npm run db:reset         -> DROP the database and rebuild everything
+ * Creates the tables and starter content in PostgreSQL (Neon).
+ *   npm run db:setup         -> create tables if missing, seed empty tables
+ *   npm run db:reset         -> DROP all GreenNest tables and rebuild everything
  */
 require('dotenv').config({ quiet: true });
+require('dotenv').config({ path: '.env.local', quiet: true });
 const fs = require('fs');
 const path = require('path');
-const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
-const { dbConfig } = require('../config/db');
+const db = require('../config/db');
 
 const reset = process.argv.includes('--reset');
 
@@ -139,36 +139,36 @@ const testimonials = [
 
 const slugify = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+const TABLES = ['session', 'media', 'contact_messages', 'subscribers', 'testimonials', 'blog_posts', 'order_items', 'orders',
+  'coupons', 'reviews', 'product_categories', 'products', 'categories', 'users'];
+
 async function main() {
-  const { database, ...server } = dbConfig;
-  const conn = await mysql.createConnection({ ...server, multipleStatements: true });
-  console.log(`Connected to MySQL at ${server.host}:${server.port}`);
+  const { host } = new URL(process.env.DATABASE_URL || process.env.POSTGRES_URL);
+  console.log(`Connected to PostgreSQL at ${host}`);
 
   if (reset) {
-    await conn.query(`DROP DATABASE IF EXISTS \`${database}\``);
-    console.log(`Dropped database "${database}"`);
+    await db.pool.query(`DROP TABLE IF EXISTS ${TABLES.map((t) => `"${t}"`).join(', ')} CASCADE`);
+    console.log('Dropped GreenNest tables');
   }
-  await conn.query(`CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
-  await conn.query(`USE \`${database}\``);
-  await conn.query(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
+  await db.pool.query(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
   console.log('Tables ready');
 
-  const count = async (table) => (await conn.query(`SELECT COUNT(*) AS n FROM ${table}`))[0][0].n;
+  const count = async (table) => (await db.one(`SELECT COUNT(*) AS n FROM ${table}`)).n;
 
   if (!(await count('categories'))) {
-    await conn.query('INSERT INTO categories (name, slug) VALUES ?', [categories.map((c) => [c.name, c.slug])]);
+    await db.query('INSERT INTO categories (name, slug) VALUES ?', [categories.map((c) => [c.name, c.slug])]);
   }
-  const [catRows] = await conn.query('SELECT id, slug FROM categories');
+  const catRows = await db.query('SELECT id, slug FROM categories');
   const catId = Object.fromEntries(catRows.map((c) => [c.slug, c.id]));
 
   if (!(await count('products'))) {
     for (const p of products) {
-      const [res] = await conn.query(
-        `INSERT INTO products (name, slug, short_description, description, price, compare_price, stock, image, light, water, size, pet_friendly, is_featured)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        [p.name, slugify(p.name), p.short, p.desc, p.price, p.compare, p.stock, p.image, p.light, p.water, p.size, p.pet, p.featured]
-      );
-      await conn.query('INSERT INTO product_categories (product_id, category_id) VALUES ?', [p.cats.map((c) => [res.insertId, catId[c]])]);
+      const id = await db.insert('products', {
+        name: p.name, slug: slugify(p.name), short_description: p.short, description: p.desc, price: p.price,
+        compare_price: p.compare, stock: p.stock, image: p.image, light: p.light, water: p.water, size: p.size,
+        pet_friendly: p.pet, is_featured: p.featured,
+      });
+      await db.query('INSERT INTO product_categories (product_id, category_id) VALUES ?', [p.cats.map((c) => [id, catId[c]])]);
     }
     console.log(`Seeded ${products.length} products`);
   }
@@ -176,9 +176,9 @@ async function main() {
   if (!(await count('blog_posts'))) {
     let day = 0;
     for (const b of posts) {
-      await conn.query(
+      await db.query(
         `INSERT INTO blog_posts (title, slug, category, excerpt, content, image, read_minutes, published_at)
-         VALUES (?,?,?,?,?,?,?, DATE_SUB(NOW(), INTERVAL ? DAY))`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, NOW() - (? * INTERVAL '1 day'))`,
         [b.title, slugify(b.title), b.category, b.excerpt, b.content, b.image, b.minutes, (day += 6)]
       );
     }
@@ -186,30 +186,29 @@ async function main() {
   }
 
   if (!(await count('testimonials'))) {
-    await conn.query('INSERT INTO testimonials (name, role, message, image) VALUES ?', [testimonials.map((t) => [t.name, t.role, t.message, t.image])]);
+    await db.query('INSERT INTO testimonials (name, role, message, image) VALUES ?', [testimonials.map((t) => [t.name, t.role, t.message, t.image])]);
   }
 
   if (!(await count('coupons'))) {
-    await conn.query("INSERT INTO coupons (code, percent) VALUES ('SPRING25', 25), ('WELCOME10', 10)");
+    await db.query("INSERT INTO coupons (code, percent) VALUES ('SPRING25', 25), ('WELCOME10', 10)");
     console.log('Seeded coupons: SPRING25 (25%), WELCOME10 (10%)');
   }
 
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@greennest.com').toLowerCase();
-  const [[admin]] = await conn.query('SELECT id FROM users WHERE email = ?', [adminEmail]);
-  if (!admin) {
+  if (!(await db.one('SELECT id FROM users WHERE email = ?', [adminEmail]))) {
     const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'Admin@12345', 12);
-    await conn.query("INSERT INTO users (name, email, password_hash, role) VALUES (?,?,?,'admin')",
+    await db.query("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
       [process.env.ADMIN_NAME || 'GreenNest Admin', adminEmail, hash]);
     console.log(`Created admin user: ${adminEmail}`);
   }
 
-  await conn.end();
+  await db.pool.end();
   console.log('Database setup complete ✔');
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error('\nDatabase setup failed:', err.message);
-  if (err.code === 'ER_ACCESS_DENIED_ERROR') console.error('→ Check DB_USER / DB_PASSWORD in your .env file.');
-  if (err.code === 'ECONNREFUSED') console.error('→ Is MySQL running? Check DB_HOST / DB_PORT in your .env file.');
+  if (!process.env.DATABASE_URL) console.error('→ Set DATABASE_URL in .env (see README).');
+  await db.pool.end().catch(() => {});
   process.exit(1);
 });

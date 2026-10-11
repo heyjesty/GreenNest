@@ -17,8 +17,8 @@ const upload = multer({
 });
 
 async function saveImage(file) {
-  const r = await db.query('INSERT INTO media (mime_type, data) VALUES (?, ?)', [file.mimetype, file.buffer]);
-  return `/media/${r.insertId}`;
+  const id = await db.insert('media', { mime_type: file.mimetype, data: file.buffer });
+  return `/media/${id}`;
 }
 
 /** Wraps multer so upload errors become a friendly flash message. */
@@ -53,16 +53,16 @@ router.get('/', async (req, res) => {
   const [recentOrders, lowStock, sales] = await Promise.all([
     db.query('SELECT * FROM orders ORDER BY created_at DESC LIMIT 6'),
     db.query('SELECT id, name, stock, image FROM products WHERE is_active = 1 AND stock <= 10 ORDER BY stock ASC LIMIT 6'),
-    db.query(`SELECT DATE(created_at) AS day, SUM(total) AS total, COUNT(*) AS n FROM orders
-              WHERE status <> 'cancelled' AND created_at >= CURDATE() - INTERVAL 6 DAY GROUP BY DATE(created_at)`),
+    db.query(`SELECT TO_CHAR(created_at::date, 'YYYY-MM-DD') AS day, SUM(total) AS total, COUNT(*) AS n FROM orders
+              WHERE status <> 'cancelled' AND created_at >= CURRENT_DATE - INTERVAL '6 days' GROUP BY created_at::date`),
   ]);
 
   // Build a full 7-day series (days without sales = 0).
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
-    const key = d.toDateString();
-    const row = sales.find((s) => new Date(s.day).toDateString() === key);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const row = sales.find((s) => s.day === key);
     days.push({ label: d.toLocaleDateString('en-US', { weekday: 'short' }), total: row ? Number(row.total) : 0 });
   }
 
@@ -73,9 +73,9 @@ router.get('/', async (req, res) => {
 router.get('/products', async (req, res) => {
   const q = String(req.query.q || '').trim();
   const rows = await db.query(
-    `SELECT p.*, GROUP_CONCAT(c.name ORDER BY c.name SEPARATOR ', ') AS category_names
+    `SELECT p.*, STRING_AGG(c.name, ', ' ORDER BY c.name) AS category_names
      FROM products p LEFT JOIN product_categories pc ON pc.product_id = p.id LEFT JOIN categories c ON c.id = pc.category_id
-     WHERE p.name LIKE ? GROUP BY p.id ORDER BY p.created_at DESC`, [`%${q}%`]);
+     WHERE p.name ILIKE ? GROUP BY p.id ORDER BY p.created_at DESC`, [`%${q}%`]);
   res.render('admin/products', { title: 'Products', products: rows, q });
 });
 
@@ -139,9 +139,9 @@ router.post('/products', withUpload('image'), async (req, res) => {
   p.slug = await uniqueSlug('products', p.name);
   const id = await db.transaction(async (conn) => {
     const { category_ids: cats, ...cols } = p;
-    const [r] = await conn.query('INSERT INTO products SET ?', [cols]);
-    await saveCategories(conn, r.insertId, cats);
-    return r.insertId;
+    const newId = await db.insert('products', cols, conn);
+    await saveCategories(conn, newId, cats);
+    return newId;
   });
   req.session.flash = { type: 'success', message: `“${p.name}” has been created.` };
   res.redirect(`/admin/products/${id}/edit`);
@@ -159,7 +159,7 @@ router.post('/products/:id', withUpload('image'), async (req, res, next) => {
   if (p.name !== existing.name) p.slug = await uniqueSlug('products', p.name, existing.id);
   await db.transaction(async (conn) => {
     const { category_ids: cats, ...cols } = p;
-    await conn.query('UPDATE products SET ? WHERE id = ?', [cols, existing.id]);
+    await db.update('products', existing.id, { ...cols, updated_at: new Date() }, conn);
     await saveCategories(conn, existing.id, cats);
   });
   req.session.flash = { type: 'success', message: 'Product saved.' };
@@ -185,7 +185,7 @@ router.get('/orders', async (req, res) => {
   const q = String(req.query.q || '').trim();
   const where = ['1=1']; const params = [];
   if (status) { where.push('status = ?'); params.push(status); }
-  if (q) { where.push('(order_number LIKE ? OR customer_name LIKE ? OR email LIKE ?)'); params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
+  if (q) { where.push('(order_number ILIKE ? OR customer_name ILIKE ? OR email ILIKE ?)'); params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
   const [{ total }] = await db.query(`SELECT COUNT(*) AS total FROM orders WHERE ${where.join(' AND ')}`, params);
   const pager = paginate(total, req.query.page, 20);
   const orders = await db.query(`SELECT * FROM orders WHERE ${where.join(' AND ')} ORDER BY created_at DESC LIMIT 20 OFFSET ?`, [...params, pager.offset]);
@@ -208,9 +208,9 @@ router.post('/orders/:id/status', async (req, res, next) => {
   await db.transaction(async (conn) => {
     // Return stock when an order is cancelled, take it again if it is re-opened.
     if (status === 'cancelled' && order.status !== 'cancelled') {
-      await conn.query('UPDATE products p JOIN order_items oi ON oi.product_id = p.id SET p.stock = p.stock + oi.quantity WHERE oi.order_id = ?', [order.id]);
+      await conn.query('UPDATE products p SET stock = p.stock + oi.quantity FROM order_items oi WHERE oi.product_id = p.id AND oi.order_id = ?', [order.id]);
     } else if (order.status === 'cancelled' && status !== 'cancelled') {
-      await conn.query('UPDATE products p JOIN order_items oi ON oi.product_id = p.id SET p.stock = GREATEST(p.stock - oi.quantity, 0) WHERE oi.order_id = ?', [order.id]);
+      await conn.query('UPDATE products p SET stock = GREATEST(p.stock - oi.quantity, 0) FROM order_items oi WHERE oi.product_id = p.id AND oi.order_id = ?', [order.id]);
     }
     await conn.query('UPDATE orders SET status = ? WHERE id = ?', [status, order.id]);
   });
@@ -265,9 +265,9 @@ router.post('/posts', withUpload('image'), async (req, res) => {
   if (Object.keys(errors).length) return postForm(res, p, errors);
   p.image = await saveImage(req.file);
   p.slug = await uniqueSlug('blog_posts', p.title);
-  const r = await db.query('INSERT INTO blog_posts SET ?', [p]);
+  const newId = await db.insert('blog_posts', p);
   req.session.flash = { type: 'success', message: 'Post published.' };
-  res.redirect(`/admin/posts/${r.insertId}/edit`);
+  res.redirect(`/admin/posts/${newId}/edit`);
 });
 
 router.post('/posts/:id', withUpload('image'), async (req, res, next) => {
@@ -279,7 +279,7 @@ router.post('/posts/:id', withUpload('image'), async (req, res, next) => {
   if (Object.keys(errors).length) return postForm(res, { ...existing, ...p }, errors);
   if (req.file) p.image = await saveImage(req.file);
   if (p.title !== existing.title) p.slug = await uniqueSlug('blog_posts', p.title, existing.id);
-  await db.query('UPDATE blog_posts SET ? WHERE id = ?', [p, existing.id]);
+  await db.update('blog_posts', existing.id, p);
   req.session.flash = { type: 'success', message: 'Post saved.' };
   res.redirect(`/admin/posts/${existing.id}/edit`);
 });

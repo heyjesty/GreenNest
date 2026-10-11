@@ -75,8 +75,8 @@ router.post('/subscribe', formLimiter, async (req, res) => {
   if (!isEmail(email)) {
     result = { ok: false, message: 'Please enter a valid email address.' };
   } else {
-    const r = await db.query('INSERT IGNORE INTO subscribers (email) VALUES (?)', [email]);
-    result = r.affectedRows
+    const r = await db.query('INSERT INTO subscribers (email) VALUES (?) ON CONFLICT (email) DO NOTHING RETURNING id', [email]);
+    result = r.length
       ? { ok: true, message: 'You’re subscribed! Welcome to the GreenNest community 🌿' }
       : { ok: true, message: 'You’re already subscribed — thanks for being here!' };
   }

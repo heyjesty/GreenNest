@@ -62,7 +62,7 @@ router.post('/:slug/reviews', requireLogin, async (req, res, next) => {
 
   await db.query(
     `INSERT INTO reviews (product_id, user_id, rating, comment) VALUES (?,?,?,?)
-     ON DUPLICATE KEY UPDATE rating = VALUES(rating), comment = VALUES(comment), created_at = CURRENT_TIMESTAMP`,
+     ON CONFLICT (product_id, user_id) DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment, created_at = NOW()`,
     [product.id, req.user.id, rating, comment]
   );
   req.session.flash = { type: 'success', message: 'Thank you — your review has been saved.' };

@@ -88,8 +88,8 @@ router.post('/register', loginLimiter, async (req, res) => {
   }
 
   const hash = await bcrypt.hash(password, 12);
-  const result = await db.query('INSERT INTO users (name, email, password_hash) VALUES (?,?,?)', [form.name, form.email, hash]);
-  const user = { id: result.insertId, role: 'customer' };
+  const id = await db.insert('users', { name: form.name, email: form.email, password_hash: hash });
+  const user = { id, role: 'customer' };
   await signIn(req, user);
   req.session.flash = { type: 'success', message: `Welcome to GreenNest, ${form.name.split(' ')[0]}! 🌿` };
   redirectAfterLogin(req, res, user);

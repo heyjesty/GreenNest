@@ -101,7 +101,7 @@ router.post('/checkout', async (req, res) => {
     const number = await db.transaction(async (conn) => {
       // Lock the rows and re-check stock so two buyers can't oversell.
       const ids = summary.lines.map((l) => l.id);
-      const [stockRows] = await conn.query('SELECT id, name, stock FROM products WHERE id IN (?) FOR UPDATE', [ids]);
+      const stockRows = await conn.query('SELECT id, name, stock FROM products WHERE id IN (?) FOR UPDATE', [ids]);
       for (const line of summary.lines) {
         const row = stockRows.find((r) => r.id === line.id);
         if (!row || row.stock < line.quantity) {
@@ -112,17 +112,15 @@ router.post('/checkout', async (req, res) => {
       }
 
       const num = orderNumber();
-      const [order] = await conn.query(
-        `INSERT INTO orders (order_number, user_id, customer_name, email, phone, address, city, state, postal_code, notes,
-                             subtotal, discount, shipping, total, coupon_code)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        [num, req.user ? req.user.id : null, form.name, form.email, form.phone, form.address, form.city, form.state,
-          form.postal_code, form.notes || null, summary.subtotal, summary.discount, summary.shipping, summary.total,
-          summary.coupon ? summary.coupon.code : null]
-      );
+      const orderId = await db.insert('orders', {
+        order_number: num, user_id: req.user ? req.user.id : null, customer_name: form.name, email: form.email,
+        phone: form.phone, address: form.address, city: form.city, state: form.state, postal_code: form.postal_code,
+        notes: form.notes || null, subtotal: summary.subtotal, discount: summary.discount, shipping: summary.shipping,
+        total: summary.total, coupon_code: summary.coupon ? summary.coupon.code : null,
+      }, conn);
       await conn.query(
         'INSERT INTO order_items (order_id, product_id, product_name, image, unit_price, quantity, line_total) VALUES ?',
-        [summary.lines.map((l) => [order.insertId, l.id, l.name, l.image, l.price, l.quantity, l.lineTotal])]
+        [summary.lines.map((l) => [orderId, l.id, l.name, l.image, l.price, l.quantity, l.lineTotal])]
       );
       for (const l of summary.lines) {
         await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [l.quantity, l.id]);

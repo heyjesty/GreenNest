@@ -1,13 +1,14 @@
 require('dotenv').config({ quiet: true });
+require('dotenv').config({ path: '.env.local', quiet: true }); // DATABASE_URL pulled from Vercel
 
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
+const PgStore = require('connect-pg-simple')(session);
 const helmet = require('helmet');
 const compression = require('compression');
 
-const { dbConfig, pool } = require('./config/db');
+const { pool } = require('./config/db');
 const helpers = require('./lib/helpers');
 const { loadUser } = require('./middleware/auth');
 const { csrf } = require('./middleware/csrf');
@@ -41,12 +42,8 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: isProd ? '7d' :
 app.use(express.urlencoded({ extended: true, limit: '200kb' }));
 app.use(express.json({ limit: '200kb' }));
 
-// ---------- Sessions (stored in MySQL) ----------
-const sessionStore = new MySQLStore({
-  ...dbConfig,
-  createDatabaseTable: true,
-  clearExpired: true,
-});
+// ---------- Sessions (stored in PostgreSQL) ----------
+const sessionStore = new PgStore({ pool, tableName: 'session', createTableIfMissing: false, pruneSessionInterval: process.env.VERCEL ? false : 60 * 60 });
 
 app.use(session({
   name: 'greennest.sid',
@@ -107,8 +104,8 @@ if (require.main === module) {
       app.listen(PORT, () => console.log(`GreenNest running → http://localhost:${PORT}`));
     })
     .catch((err) => {
-      console.error('Could not connect to MySQL:', err.message);
-      console.error('Check the DB_* settings in .env, then run `npm run db:setup`.');
+      console.error('Could not connect to the database:', err.message);
+      console.error('Check DATABASE_URL in .env, then run `npm run db:setup`.');
       process.exit(1);
     });
 }
