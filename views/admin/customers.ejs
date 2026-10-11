@@ -1,0 +1,21 @@
+<%- include('_top') %>
+<section class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total spent</th><th>Joined</th></tr></thead>
+      <tbody>
+        <% customers.forEach(c => { %>
+          <tr>
+            <td data-label="Name"><strong><%= c.name %></strong><% if (c.role === 'admin') { %> <span class="badge badge--green">Admin</span><% } %></td>
+            <td data-label="Email"><a href="mailto:<%= c.email %>" class="link"><%= c.email %></a></td>
+            <td data-label="Phone"><%= c.phone || '—' %></td>
+            <td data-label="Orders"><%= c.orders %></td>
+            <td data-label="Total spent"><%= h.money(c.spent) %></td>
+            <td data-label="Joined"><%= h.formatDate(c.created_at) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('_bottom') %>

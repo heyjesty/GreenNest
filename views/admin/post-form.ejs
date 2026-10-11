@@ -1,0 +1,59 @@
+<%- include('_top') %>
+<% const err = (k) => errors[k] ? `<span class="field__error">${errors[k]}</span>` : ''; %>
+<p class="back"><a href="/admin/posts" class="link">← All posts</a></p>
+
+<form action="/admin/posts<%= post.id ? '/' + post.id : '' %>?_csrf=<%= csrfToken %>" method="post" enctype="multipart/form-data" class="grid-2 grid-2--wide" novalidate>
+  <section class="card">
+    <div class="field <%= errors.title ? 'has-error' : '' %>">
+      <label for="title">Title</label>
+      <input id="title" name="title" class="input" value="<%= post.title || '' %>" required>
+      <%- err('title') %>
+    </div>
+    <div class="field <%= errors.excerpt ? 'has-error' : '' %>">
+      <label for="excerpt">Summary</label>
+      <textarea id="excerpt" name="excerpt" rows="2" maxlength="300" class="input"><%= post.excerpt || '' %></textarea>
+      <%- err('excerpt') %>
+    </div>
+    <div class="field <%= errors.content ? 'has-error' : '' %>">
+      <label for="content">Content</label>
+      <textarea id="content" name="content" rows="16" class="input input--mono"><%= post.content || '' %></textarea>
+      <span class="field__hint">Basic HTML is supported: &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;&lt;li&gt;, &lt;strong&gt;, &lt;a href=""&gt;.</span>
+      <%- err('content') %>
+    </div>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <h2 class="card__title">Cover image</h2>
+      <div class="field <%= errors.image ? 'has-error' : '' %>">
+        <div class="upload">
+          <img src="<%= post.image || '/assets/icons/divider-leaf.png' %>" alt="" class="upload__preview" data-preview>
+          <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-preview-input>
+        </div>
+        <%- err('image') %>
+      </div>
+    </section>
+    <section class="card">
+      <h2 class="card__title">Settings</h2>
+      <div class="field">
+        <label for="category">Category</label>
+        <input id="category" name="category" class="input" list="cats" value="<%= post.category || 'Plant Care' %>">
+        <datalist id="cats"><option>Plant Care</option><option>Watering</option><option>Care Tips</option><option>Beginner Guides</option><option>Inspiration</option></datalist>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="author">Author</label><input id="author" name="author" class="input" value="<%= post.author || '' %>"></div>
+        <div class="field"><label for="read_minutes">Read time (min)</label><input id="read_minutes" name="read_minutes" type="number" min="1" max="60" class="input" value="<%= post.read_minutes || 4 %>"></div>
+      </div>
+      <label class="check"><input type="checkbox" name="is_published" value="1" <%= post.is_published ? 'checked' : '' %>> Published</label>
+    </section>
+    <div class="form-actions"><button class="btn btn--lg"><%= post.id ? 'Save Changes' : 'Create Post' %></button></div>
+  </div>
+</form>
+
+<% if (post.id) { %>
+  <form action="/admin/posts/<%= post.id %>/delete" method="post" class="danger-zone" data-confirm="Delete this post? This cannot be undone.">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn btn--danger">Delete Post</button>
+  </form>
+<% } %>
+<%- include('_bottom') %>

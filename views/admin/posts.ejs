@@ -1,0 +1,27 @@
+<%- include('_top') %>
+<section class="card">
+  <div class="toolbar">
+    <p class="muted"><%= posts.length %> posts</p>
+    <a href="/admin/posts/new" class="btn">+ New Post</a>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Title</th><th>Category</th><th>Published</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% posts.forEach(p => { %>
+          <tr>
+            <td data-label="Title"><span class="cell-product"><img src="<%= p.image %>" alt=""><strong><%= p.title %></strong></span></td>
+            <td data-label="Category"><%= p.category %></td>
+            <td data-label="Published"><%= h.formatDate(p.published_at) %></td>
+            <td data-label="Status"><span class="badge <%= p.is_published ? 'badge--green' : 'badge--amber' %>"><%= p.is_published ? 'Published' : 'Draft' %></span></td>
+            <td class="actions">
+              <a href="/admin/posts/<%= p.id %>/edit" class="btn btn--sm">Edit</a>
+              <% if (p.is_published) { %><a href="/blog/<%= p.slug %>" class="btn btn--sm btn--ghost" target="_blank" rel="noopener">View</a><% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('_bottom') %>

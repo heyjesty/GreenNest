@@ -1,0 +1,11 @@
+<article class="post">
+  <a href="/blog/<%= post.slug %>" class="post__img" tabindex="-1" aria-hidden="true"><img src="<%= post.image %>" alt="" loading="lazy"></a>
+  <div class="post__body">
+    <% if (typeof showMeta !== 'undefined' && showMeta) { %>
+      <p class="post__meta"><%= post.category %> · <%= post.read_minutes %> min read</p>
+    <% } %>
+    <h3><a href="/blog/<%= post.slug %>"><%= post.title %></a></h3>
+    <p><%= post.excerpt %></p>
+    <a href="/blog/<%= post.slug %>" class="btn btn--dark btn--sm">Read More</a>
+  </div>
+</article>

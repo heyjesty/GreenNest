@@ -1,0 +1,9 @@
+<div class="toast-stack" id="toastStack" aria-live="polite">
+  <% if (flash) { %>
+    <div class="toast toast--<%= flash.type %>" role="status">
+      <svg><use href="#<%= flash.type === 'error' ? 'i-close' : 'i-check' %>"/></svg>
+      <span><%= flash.message %></span>
+      <button class="toast__close" aria-label="Dismiss">&times;</button>
+    </div>
+  <% } %>
+</div>

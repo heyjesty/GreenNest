@@ -1,0 +1,40 @@
+<%- include('_top') %>
+<% const max = Math.max(1, ...days.map(d => d.total)); %>
+<div class="kpis">
+  <div class="kpi"><small>Revenue</small><strong><%= h.money(stats.revenue) %></strong><span>excluding cancelled</span></div>
+  <div class="kpi"><small>Orders</small><strong><%= stats.orders %></strong><span><a href="/admin/orders?status=pending"><%= stats.pending %> pending</a></span></div>
+  <div class="kpi"><small>Customers</small><strong><%= stats.customers %></strong><span><%= stats.subscribers %> subscribers</span></div>
+  <div class="kpi"><small>Products</small><strong><%= stats.products %></strong><span><a href="/admin/messages"><%= stats.unread %> unread messages</a></span></div>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <h2 class="card__title">Sales — last 7 days</h2>
+    <div class="bars" role="img" aria-label="Sales per day for the last 7 days">
+      <% days.forEach(d => { %>
+        <div class="bars__col" title="<%= d.label %>: <%= h.money(d.total) %>">
+          <span class="bars__val"><%= d.total ? h.money(d.total) : '' %></span>
+          <span class="bars__bar" style="height: <%= Math.max(2, d.total / max * 100).toFixed(1) %>%"></span>
+          <span class="bars__label"><%= d.label %></span>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="card__title">Low stock</h2>
+    <% if (lowStock.length) { %>
+      <ul class="list">
+        <% lowStock.forEach(p => { %>
+          <li><img src="<%= p.image %>" alt=""><a href="/admin/products/<%= p.id %>/edit"><%= p.name %></a><span class="badge <%= p.stock === 0 ? 'badge--red' : 'badge--amber' %>"><%= p.stock %> left</span></li>
+        <% }) %>
+      </ul>
+    <% } else { %><p class="muted">All products are well stocked.</p><% } %>
+  </section>
+</div>
+
+<section class="card">
+  <div class="card__head"><h2 class="card__title">Recent orders</h2><a href="/admin/orders" class="btn btn--sm">View all</a></div>
+  <%- include('_orders-table', { orders: recentOrders }) %>
+</section>
+<%- include('_bottom') %>

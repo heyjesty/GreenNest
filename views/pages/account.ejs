@@ -1,0 +1,80 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <%- include('../partials/page-hero', { bg: 'care', heading: 'Hello, ' + user.name.split(' ')[0] + '!', subheading: 'Manage your orders and account details.', breadcrumbs: [{ label: 'My Account' }] }) %>
+
+  <section class="section">
+    <div class="container account">
+      <nav class="account__nav panel" aria-label="Account">
+        <a href="/account?tab=orders" class="<%= tab === 'orders' ? 'is-active' : '' %>">My Orders</a>
+        <a href="/account?tab=profile" class="<%= tab === 'profile' ? 'is-active' : '' %>">Profile</a>
+        <a href="/account?tab=security" class="<%= tab === 'security' ? 'is-active' : '' %>">Password</a>
+        <% if (user.role === 'admin') { %><a href="/admin">Admin Dashboard</a><% } %>
+        <form action="/logout" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="account__logout">Sign Out</button>
+        </form>
+      </nav>
+
+      <div class="account__body">
+        <% if (tab === 'profile') { %>
+          <form action="/account/profile" method="post" class="panel">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <h2 class="panel__title">Profile Details</h2>
+            <div class="form-grid">
+              <div class="field"><label for="name">Full name</label><input id="name" name="name" class="input" value="<%= user.name %>" required></div>
+              <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" class="input" value="<%= user.phone || '' %>"></div>
+              <div class="field field--full"><label for="email">Email</label><input id="email" class="input" value="<%= user.email %>" disabled><span class="field__hint">Contact us to change your email address.</span></div>
+            </div>
+            <button class="btn btn--dark">Save Changes</button>
+          </form>
+
+        <% } else if (tab === 'security') { %>
+          <form action="/account/password" method="post" class="panel">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <h2 class="panel__title">Change Password</h2>
+            <div class="form-grid">
+              <div class="field field--full"><label for="current">Current password</label><input id="current" name="current" type="password" class="input" required autocomplete="current-password"></div>
+              <div class="field"><label for="password">New password</label><input id="password" name="password" type="password" class="input" required minlength="8" autocomplete="new-password"></div>
+              <div class="field"><label for="confirm">Confirm new password</label><input id="confirm" name="confirm" type="password" class="input" required autocomplete="new-password"></div>
+            </div>
+            <button class="btn btn--dark">Update Password</button>
+          </form>
+
+        <% } else { %>
+          <div class="panel">
+            <h2 class="panel__title">My Orders</h2>
+            <% if (orders.length) { %>
+              <div class="table-wrap">
+                <table class="table table--orders">
+                  <thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                  <tbody>
+                    <% orders.forEach(o => { %>
+                      <tr>
+                        <td data-label="Order"><strong><%= o.order_number %></strong></td>
+                        <td data-label="Date"><%= h.formatDate(o.created_at) %></td>
+                        <td data-label="Items"><%= o.item_count %></td>
+                        <td data-label="Total"><%= h.money(o.total) %></td>
+                        <td data-label="Status"><span class="status status--<%= o.status %>"><%= o.status %></span></td>
+                        <td><a href="/account/orders/<%= o.order_number %>" class="link">View</a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <div class="empty empty--inline">
+                <h3>No orders yet</h3>
+                <p>When you place an order, it will appear here.</p>
+                <a href="/shop" class="btn btn--dark">Start Shopping</a>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,29 @@
+<%- include('_top') %>
+<section class="card">
+  <div class="toolbar">
+    <form method="get" action="/admin/products"><input type="search" name="q" value="<%= q %>" placeholder="Search products" class="input"></form>
+    <a href="/admin/products/new" class="btn">+ New Product</a>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Product</th><th>Categories</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% products.forEach(p => { %>
+          <tr>
+            <td data-label="Product"><span class="cell-product"><img src="<%= p.image %>" alt=""><span><strong><%= p.name %></strong><% if (p.is_featured) { %><small class="block muted">Featured on home</small><% } %></span></span></td>
+            <td data-label="Categories"><%= p.category_names || '—' %></td>
+            <td data-label="Price"><%= h.money(p.price) %><% if (p.compare_price) { %> <s class="muted"><%= h.money(p.compare_price) %></s><% } %></td>
+            <td data-label="Stock"><span class="badge <%= p.stock === 0 ? 'badge--red' : p.stock <= 10 ? 'badge--amber' : 'badge--green' %>"><%= p.stock %></span></td>
+            <td data-label="Status"><%= p.is_active ? 'Visible' : 'Hidden' %></td>
+            <td class="actions">
+              <a href="/admin/products/<%= p.id %>/edit" class="btn btn--sm">Edit</a>
+              <% if (p.is_active) { %><a href="/shop/<%= p.slug %>" class="btn btn--sm btn--ghost" target="_blank" rel="noopener">View</a><% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% if (!products.length) { %><p class="muted">No products found.</p><% } %>
+</section>
+<%- include('_bottom') %>

@@ -1,0 +1,47 @@
+<%- include('../partials/head', { bodyClass: 'page-auth' }) %>
+<%- include('../partials/header') %>
+<% const err = (k) => errors[k] ? `<span class="field__error">${errors[k]}</span>` : ''; %>
+
+<main id="main" class="auth">
+  <div class="auth__card">
+    <div class="auth__aside">
+      <h2>Join the GreenNest community</h2>
+      <ul class="auth__perks">
+        <li><svg><use href="#i-check"/></svg> Track every order</li>
+        <li><svg><use href="#i-check"/></svg> Faster checkout</li>
+        <li><svg><use href="#i-check"/></svg> Review your plants</li>
+      </ul>
+    </div>
+    <form action="/register" method="post" class="auth__form" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <h1 class="auth__title">Create Account</h1>
+      <div class="field <%= errors.name ? 'has-error' : '' %>">
+        <label for="name">Full name</label>
+        <input id="name" name="name" class="input" value="<%= form.name || '' %>" required autocomplete="name">
+        <%- err('name') %>
+      </div>
+      <div class="field <%= errors.email ? 'has-error' : '' %>">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" class="input" value="<%= form.email || '' %>" required autocomplete="email">
+        <%- err('email') %>
+      </div>
+      <div class="field <%= errors.password ? 'has-error' : '' %>">
+        <label for="password">Password</label>
+        <div class="password-field">
+          <input id="password" name="password" type="password" class="input" required minlength="8" autocomplete="new-password">
+          <button type="button" class="password-toggle" data-toggle-password aria-label="Show password">Show</button>
+        </div>
+        <%- err('password') || '<span class="field__hint">At least 8 characters, with a letter and a number.</span>' %>
+      </div>
+      <div class="field <%= errors.confirm ? 'has-error' : '' %>">
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" class="input" required autocomplete="new-password">
+        <%- err('confirm') %>
+      </div>
+      <button class="btn btn--dark btn--block btn--lg">Create Account</button>
+      <p class="auth__switch">Already have an account? <a href="/login" class="link">Sign in</a></p>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

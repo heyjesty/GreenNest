@@ -1,0 +1,96 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <%- include('../partials/page-hero', {
+    bg: 'sale',
+    heading: activeCategory ? activeCategory.name + ' Plants' : 'Shop All Plants',
+    subheading: 'Healthy, handpicked plants delivered to your door — with free shipping on orders over ' + h.money(50) + '.',
+    breadcrumbs: activeCategory ? [{ href: '/shop', label: 'Shop' }, { label: activeCategory.name }] : [{ label: 'Shop' }]
+  }) %>
+
+  <section class="section">
+    <div class="container shop">
+      <!-- Filters -->
+      <aside class="shop__filters" id="shopFilters">
+        <form action="/shop" method="get" class="filters" id="filterForm">
+          <div class="filters__head">
+            <h2 class="filters__title">Filters</h2>
+            <button type="button" class="filters__close" data-close-filters aria-label="Close filters"><svg><use href="#i-close"/></svg></button>
+          </div>
+
+          <div class="filters__group">
+            <label class="filters__label" for="q">Search</label>
+            <div class="input-icon">
+              <svg><use href="#i-search"/></svg>
+              <input type="search" id="q" name="q" value="<%= filters.q %>" placeholder="Search plants..." class="input">
+            </div>
+          </div>
+
+          <div class="filters__group">
+            <span class="filters__label">Category</span>
+            <label class="radio"><input type="radio" name="category" value="" <%= !filters.category ? 'checked' : '' %>> <span>All Plants</span></label>
+            <% categories.forEach(c => { %>
+              <label class="radio">
+                <input type="radio" name="category" value="<%= c.slug %>" <%= filters.category === c.slug ? 'checked' : '' %>>
+                <span><%= c.name %></span><em><%= c.product_count %></em>
+              </label>
+            <% }) %>
+          </div>
+
+          <div class="filters__group">
+            <span class="filters__label">Price</span>
+            <div class="price-range">
+              <input type="number" name="min" min="0" step="1" placeholder="Min" value="<%= filters.min || '' %>" class="input" aria-label="Minimum price">
+              <span>–</span>
+              <input type="number" name="max" min="0" step="1" placeholder="Max" value="<%= filters.max || '' %>" class="input" aria-label="Maximum price">
+            </div>
+          </div>
+
+          <div class="filters__group">
+            <label class="check"><input type="checkbox" name="stock" value="1" <%= filters.inStock ? 'checked' : '' %>> <span>In stock only</span></label>
+          </div>
+
+          <input type="hidden" name="sort" value="<%= filters.sort %>">
+          <div class="filters__actions">
+            <button class="btn btn--dark btn--block">Apply Filters</button>
+            <a href="/shop" class="btn btn--ghost btn--block">Reset</a>
+          </div>
+        </form>
+      </aside>
+
+      <!-- Results -->
+      <div class="shop__results">
+        <div class="shop__toolbar">
+          <p class="shop__count"><strong><%= pager.total %></strong> <%= pager.total === 1 ? 'plant' : 'plants' %> found<% if (filters.q) { %> for “<%= filters.q %>”<% } %></p>
+          <div class="shop__tools">
+            <button type="button" class="btn btn--ghost shop__filter-btn" data-open-filters>Filters</button>
+            <label for="sort" class="sr-only">Sort by</label>
+            <select id="sort" class="input select js-sort" data-base="<%= h.withQuery(query, { sort: '', page: '' }) %>">
+              <% [['featured','Featured'],['newest','Newest'],['price-asc','Price: Low to High'],['price-desc','Price: High to Low'],['name','Name A–Z']].forEach(([v, l]) => { %>
+                <option value="<%= v %>" <%= filters.sort === v ? 'selected' : '' %>><%= l %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <% if (products.length) { %>
+          <div class="products products--shop">
+            <% products.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+          </div>
+          <%- include('../partials/pagination') %>
+        <% } else { %>
+          <div class="empty">
+            <img src="/assets/icons/divider-leaf.png" alt="" class="empty__icon">
+            <h2>No plants match your filters</h2>
+            <p>Try a different search or clear the filters to see everything.</p>
+            <a href="/shop" class="btn btn--dark">View All Plants</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+  <div class="filters-backdrop" data-close-filters></div>
+</main>
+
+<%- include('../partials/footer') %>

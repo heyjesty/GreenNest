@@ -1,0 +1,8 @@
+<%- include('head') %>
+<%- include('header') %>
+<main id="main">
+  <%- include('page-hero', { bg: 'sale', heading, breadcrumbs: [{ label: heading }] }) %>
+  <section class="section">
+    <div class="container narrow">
+      <div class="prose panel">
+        <p class="muted">Last updated: <%= h.formatDate(new Date(), { year: 'numeric', month: 'long', day: 'numeric' }) %></p>

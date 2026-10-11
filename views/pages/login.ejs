@@ -1,0 +1,31 @@
+<%- include('../partials/head', { bodyClass: 'page-auth' }) %>
+<%- include('../partials/header') %>
+
+<main id="main" class="auth">
+  <div class="auth__card">
+    <div class="auth__aside">
+      <h2>Welcome back</h2>
+      <p>Sign in to track your orders, save your details and check out faster.</p>
+    </div>
+    <form action="/login" method="post" class="auth__form" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <h1 class="auth__title">Sign In</h1>
+      <% if (error) { %><div class="alert alert--error"><%= error %></div><% } %>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" class="input" value="<%= form.email || '' %>" required autocomplete="email" autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-field">
+          <input id="password" name="password" type="password" class="input" required autocomplete="current-password">
+          <button type="button" class="password-toggle" data-toggle-password aria-label="Show password">Show</button>
+        </div>
+      </div>
+      <button class="btn btn--dark btn--block btn--lg">Sign In</button>
+      <p class="auth__switch">New to GreenNest? <a href="/register" class="link">Create an account</a></p>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

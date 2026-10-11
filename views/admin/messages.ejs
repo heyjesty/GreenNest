@@ -1,0 +1,24 @@
+<%- include('_top') %>
+<% if (!messages.length) { %>
+  <section class="card"><p class="muted">No messages yet. Messages sent from the Contact page appear here.</p></section>
+<% } %>
+<div class="messages">
+  <% messages.forEach(m => { %>
+    <article class="card message <%= m.is_read ? '' : 'message--unread' %>">
+      <header class="message__head">
+        <div>
+          <h2 class="message__subject"><%= m.subject %></h2>
+          <p class="muted small"><strong><%= m.name %></strong> · <a href="mailto:<%= m.email %>?subject=Re: <%= encodeURIComponent(m.subject) %>" class="link"><%= m.email %></a> · <%= new Date(m.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %></p>
+        </div>
+        <% if (!m.is_read) { %><span class="badge badge--green">New</span><% } %>
+      </header>
+      <p class="message__body"><%= m.message %></p>
+      <div class="actions">
+        <a href="mailto:<%= m.email %>?subject=Re: <%= encodeURIComponent(m.subject) %>" class="btn btn--sm">Reply</a>
+        <form action="/admin/messages/<%= m.id %>/read" method="post"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn--sm btn--ghost">Mark as <%= m.is_read ? 'unread' : 'read' %></button></form>
+        <form action="/admin/messages/<%= m.id %>/delete" method="post" data-confirm="Delete this message?"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn--sm btn--ghost btn--danger-text">Delete</button></form>
+      </div>
+    </article>
+  <% }) %>
+</div>
+<%- include('_bottom') %>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> · GreenNest Admin</title>
+  <link rel="icon" type="image/png" href="/assets/icons/logo-mark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Yrsa:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin">
+<%- include('../partials/sprite') %>
+<%
+  const links = [
+    ['/admin', 'Dashboard'], ['/admin/orders', 'Orders'], ['/admin/products', 'Products'],
+    ['/admin/posts', 'Blog Posts'], ['/admin/customers', 'Customers'], ['/admin/messages', 'Messages'], ['/admin/subscribers', 'Subscribers'],
+  ];
+  const on = (href) => href === '/admin' ? path === '/admin' || path === '/admin/' : path.startsWith(href);
+%>
+<aside class="sidebar" id="sidebar">
+  <a href="/admin" class="sidebar__logo"><img src="/assets/icons/logo-mark.png" alt=""><span>GreenNest</span><em>Admin</em></a>
+  <nav class="sidebar__nav">
+    <% links.forEach(([href, label]) => { %>
+      <a href="<%= href %>" class="<%= on(href) ? 'is-active' : '' %>"><%= label %></a>
+    <% }) %>
+  </nav>
+  <div class="sidebar__foot">
+    <a href="/" target="_blank" rel="noopener">View Store ↗</a>
+    <form action="/logout" method="post"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button>Sign Out</button></form>
+  </div>
+</aside>
+<div class="sidebar-backdrop" data-sidebar-close></div>
+
+<div class="main">
+  <header class="topbar">
+    <button class="topbar__menu" data-sidebar-open aria-label="Open menu"><span></span><span></span><span></span></button>
+    <h1 class="topbar__title"><%= title %></h1>
+    <span class="topbar__user"><svg><use href="#i-user"/></svg><span><%= user.name %></span></span>
+  </header>
+  <% if (flash) { %>
+    <div class="alert alert--<%= flash.type %>"><%= flash.message %></div>
+  <% } %>
+  <div class="content">

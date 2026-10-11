@@ -1,0 +1,130 @@
+/* =========================================================
+   GreenNest – motion & hover polish
+   Loaded after style.css / pages.css so these rules win.
+   ========================================================= */
+
+:root {
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --hover-bg: #e2eedb;          /* soft green behind dark-green hover text */
+}
+
+/* ---------- Buttons: dark-green text on hover ---------- */
+.btn {
+  transition:
+    color .35s var(--ease-out),
+    background-color .35s var(--ease-out),
+    box-shadow .35s var(--ease-out),
+    transform .35s var(--ease-out);
+}
+.btn:hover,
+.btn:focus-visible {
+  color: var(--dark);
+  transform: translateY(-3px);
+}
+.btn--primary:hover, .btn--primary:focus-visible,
+.btn--dark:hover, .btn--dark:focus-visible {
+  background: var(--hover-bg);
+  color: var(--dark);
+  box-shadow: inset 0 0 0 1.5px var(--dark), 0 10px 22px rgba(10, 40, 16, .18);
+}
+.btn--light:hover, .btn--light:focus-visible {
+  background: var(--hover-bg);
+  color: var(--dark);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .18);
+}
+.btn--ghost:hover, .btn--ghost:focus-visible {
+  background: var(--hover-bg);
+  border-color: var(--dark);
+  color: var(--dark);
+}
+.btn--danger:hover { color: #8c1d18; }
+.btn:active { transform: translateY(-1px) scale(.98); }
+.btn__icon { transition: fill .35s var(--ease-out); }
+.btn:hover .btn__icon { fill: var(--dark); }
+
+/* Text-style buttons & links follow the same colour rule */
+.tab { transition: background-color .35s var(--ease-out), color .35s var(--ease-out), transform .35s var(--ease-out); }
+.tab:not(.is-active):hover { color: var(--dark); background: var(--hover-bg); transform: translateY(-2px); }
+.tab.is-active:hover { background: var(--hover-bg); color: var(--dark); box-shadow: inset 0 0 0 1.5px var(--dark); }
+
+.chip, .pagination__link { transition: background-color .3s var(--ease-out), color .3s var(--ease-out), transform .3s var(--ease-out); }
+.chip:hover, .pagination__link:hover { color: var(--dark); background: var(--hover-bg); transform: translateY(-2px); }
+.chip.is-active:hover, .pagination__link.is-current:hover { background: var(--hover-bg); color: var(--dark); }
+
+.nav__menu a { transition: color .3s var(--ease-out); }
+.nav__menu a:hover { color: var(--dark); }
+.hero__video { transition: color .3s var(--ease-out); }
+.hero__video:hover { color: var(--dark); }
+.link { transition: color .3s var(--ease-out); }
+
+.product__cart svg, .nav__cart svg, .nav__icon svg { transition: fill .3s var(--ease-out), transform .35s var(--ease-out); }
+.product__cart:hover svg { fill: var(--dark); }
+.nav__cart:hover svg, .nav__icon:hover svg { fill: var(--dark); transform: scale(1.1); }
+
+.newsletter__form .btn:hover { background: var(--hover-bg); color: var(--dark); }
+.password-toggle:hover, .account__nav a:not(.is-active):hover { color: var(--dark); }
+
+/* ---------- Cards: smooth lift & image zoom ---------- */
+.product, .post, .value-card, .info-card, .stat, .glass-card, .review, .care-facts li {
+  transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out), background-color .4s var(--ease-out);
+}
+.post__img img, .split__media img, .pdp__media img, .article-cover img { transition: transform .9s var(--ease-out); }
+.post:hover .post__img img { transform: scale(1.05); }
+.pdp__media:hover img { transform: scale(1.03); }
+.stat:hover { transform: translateY(-6px); box-shadow: 0 14px 28px rgba(0, 0, 0, .16); }
+.info-card:hover, .care-facts li:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0, 0, 0, .08); }
+.review:hover { transform: translateY(-4px); }
+.feature__icon { transition: transform .5s var(--ease-out); }
+.feature:hover .feature__icon { transform: translateY(-4px) rotate(-6deg); }
+.why__image img { animation: float 6s ease-in-out infinite; }
+.socials a svg { transition: transform .35s var(--ease-out); }
+.socials a:hover svg { transform: scale(1.12); }
+
+/* ---------- Page-load entrance ---------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes zoomOut { from { transform: scale(1.08); } to { transform: scale(1); } }
+
+.header { animation: fadeIn .6s var(--ease-out) both; }
+.hero { animation: fadeIn 1s var(--ease-out) both; }
+.hero__title   { animation: fadeUp .9s var(--ease-out) .15s both; }
+.hero__text    { animation: fadeUp .9s var(--ease-out) .3s both; }
+.hero__actions { animation: fadeUp .9s var(--ease-out) .45s both; }
+.stats .stat { animation: fadeUp .9s var(--ease-out) backwards; }
+.stats .stat:nth-child(1) { animation-delay: .55s; }
+.stats .stat:nth-child(2) { animation-delay: .65s; }
+.stats .stat:nth-child(3) { animation-delay: .75s; }
+.stats .stat:nth-child(4) { animation-delay: .85s; }
+.stats--static .stat { animation: none; }
+
+.page-hero { animation: fadeIn .8s var(--ease-out) both; }
+.page-hero .breadcrumb    { animation: fadeUp .8s var(--ease-out) .1s both; }
+.page-hero__title         { animation: fadeUp .8s var(--ease-out) .2s both; }
+.page-hero__text          { animation: fadeUp .8s var(--ease-out) .32s both; }
+.article-hero > .container > * { animation: fadeUp .8s var(--ease-out) both; }
+.article-hero__title { animation-delay: .1s !important; }
+.article-hero__meta  { animation-delay: .2s !important; }
+.auth__card { animation: fadeUp .9s var(--ease-out) .1s backwards; }
+.auth__aside { overflow: hidden; }
+
+/* ---------- Scroll reveal (classes added by main.js) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity .9s var(--ease-out), transform .9s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.reveal--left  { transform: translateX(-40px); }
+.reveal--right { transform: translateX(40px); }
+.reveal--zoom  { transform: scale(.94); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+  .why__image img { animation: none; }
+}

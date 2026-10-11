@@ -1,0 +1,106 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+<%
+  const field = (name, label, opts = {}) => ({ name, label, ...opts });
+  const err = (k) => errors[k] ? `<span class="field__error">${errors[k]}</span>` : '';
+%>
+
+<main id="main">
+  <%- include('../partials/page-hero', { bg: 'care', heading: 'Checkout', breadcrumbs: [{ href: '/cart', label: 'Cart' }, { label: 'Checkout' }] }) %>
+
+  <section class="section">
+    <div class="container">
+      <form action="/cart/checkout" method="post" class="checkout" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="checkout__main">
+          <% if (!user) { %>
+            <div class="notice">Have an account? <a href="/login" class="link">Sign in</a> for faster checkout and order tracking — or continue as a guest.</div>
+          <% } %>
+
+          <div class="panel">
+            <h2 class="panel__title"><span class="step">1</span> Contact Details</h2>
+            <div class="form-grid">
+              <div class="field field--full <%= errors.name ? 'has-error' : '' %>">
+                <label for="name">Full name</label>
+                <input id="name" name="name" class="input" value="<%= form.name %>" required autocomplete="name">
+                <%- err('name') %>
+              </div>
+              <div class="field <%= errors.email ? 'has-error' : '' %>">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" class="input" value="<%= form.email %>" required autocomplete="email">
+                <%- err('email') %>
+              </div>
+              <div class="field <%= errors.phone ? 'has-error' : '' %>">
+                <label for="phone">Phone</label>
+                <input id="phone" name="phone" type="tel" class="input" value="<%= form.phone %>" required autocomplete="tel">
+                <%- err('phone') %>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2 class="panel__title"><span class="step">2</span> Delivery Address</h2>
+            <div class="form-grid">
+              <div class="field field--full <%= errors.address ? 'has-error' : '' %>">
+                <label for="address">Street address</label>
+                <input id="address" name="address" class="input" value="<%= form.address %>" required autocomplete="street-address">
+                <%- err('address') %>
+              </div>
+              <div class="field <%= errors.city ? 'has-error' : '' %>">
+                <label for="city">City</label>
+                <input id="city" name="city" class="input" value="<%= form.city %>" required autocomplete="address-level2">
+                <%- err('city') %>
+              </div>
+              <div class="field <%= errors.state ? 'has-error' : '' %>">
+                <label for="state">State</label>
+                <input id="state" name="state" class="input" value="<%= form.state %>" required autocomplete="address-level1">
+                <%- err('state') %>
+              </div>
+              <div class="field <%= errors.postal_code ? 'has-error' : '' %>">
+                <label for="postal_code">Postal code</label>
+                <input id="postal_code" name="postal_code" class="input" value="<%= form.postal_code %>" required autocomplete="postal-code">
+                <%- err('postal_code') %>
+              </div>
+              <div class="field field--full">
+                <label for="notes">Delivery notes <small>(optional)</small></label>
+                <textarea id="notes" name="notes" rows="2" class="input" placeholder="Gate code, preferred delivery time..."><%= form.notes || '' %></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2 class="panel__title"><span class="step">3</span> Payment</h2>
+            <label class="pay-option is-selected">
+              <input type="radio" name="payment" value="cod" checked>
+              <span><strong>Cash on Delivery</strong><small>Pay in cash or by card when your plants arrive.</small></span>
+            </label>
+          </div>
+        </div>
+
+        <aside class="summary panel checkout__summary">
+          <h2 class="panel__title">Your Order</h2>
+          <ul class="mini-lines">
+            <% summary.lines.forEach(l => { %>
+              <li>
+                <span class="mini-lines__img"><img src="<%= l.image %>" alt=""><em><%= l.quantity %></em></span>
+                <span class="mini-lines__name"><%= l.name %></span>
+                <strong><%= h.money(l.lineTotal) %></strong>
+              </li>
+            <% }) %>
+          </ul>
+          <dl class="totals">
+            <div><dt>Subtotal</dt><dd><%= h.money(summary.subtotal) %></dd></div>
+            <% if (summary.coupon) { %><div class="totals__discount"><dt>Discount (<%= summary.coupon.code %>)</dt><dd>−<%= h.money(summary.discount) %></dd></div><% } %>
+            <div><dt>Shipping</dt><dd><%= summary.shipping ? h.money(summary.shipping) : 'Free' %></dd></div>
+            <div class="totals__grand"><dt>Total</dt><dd><%= h.money(summary.total) %></dd></div>
+          </dl>
+          <button class="btn btn--dark btn--block btn--lg">Place Order</button>
+          <p class="summary__note">By placing your order you agree to our <a href="/terms" class="link">Terms</a>.</p>
+        </aside>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

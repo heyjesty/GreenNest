@@ -1,0 +1,12 @@
+<section class="newsletter">
+  <div class="newsletter__panel">
+    <h2 class="newsletter__title">Get The Green In Your Inbox</h2>
+    <p class="newsletter__text">Subscribe for exclusive plant care tips. New arrivals and fresh deals</p>
+    <form class="newsletter__form js-subscribe" action="/subscribe" method="post">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label for="email-<%= typeof formId !== 'undefined' ? formId : 'nl' %>" class="sr-only">Email address</label>
+      <input type="email" name="email" id="email-<%= typeof formId !== 'undefined' ? formId : 'nl' %>" placeholder="Enter Your Email..." required autocomplete="email">
+      <button type="submit" class="btn btn--dark">Subscribe</button>
+    </form>
+  </div>
+</section>

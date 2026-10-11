@@ -1,0 +1,22 @@
+<%- include('_top') %>
+<section class="card">
+  <form class="toolbar" method="get" action="/admin/orders">
+    <div class="chips">
+      <a href="/admin/orders<%= q ? '?q=' + encodeURIComponent(q) : '' %>" class="chip <%= !status ? 'is-active' : '' %>">All</a>
+      <% statuses.forEach(s => { %>
+        <a href="/admin/orders?status=<%= s %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="chip <%= status === s ? 'is-active' : '' %>"><%= s %></a>
+      <% }) %>
+    </div>
+    <% if (status) { %><input type="hidden" name="status" value="<%= status %>"><% } %>
+    <input type="search" name="q" value="<%= q %>" placeholder="Search order #, name, email" class="input">
+  </form>
+  <%- include('_orders-table', { orders }) %>
+  <% if (pager.pages > 1) { %>
+    <nav class="pagination">
+      <% for (let i = 1; i <= pager.pages; i++) { %>
+        <a href="<%= h.withQuery(query, { page: i }) %>" class="<%= i === pager.current ? 'is-current' : '' %>"><%= i %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</section>
+<%- include('_bottom') %>

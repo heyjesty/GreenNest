@@ -1,0 +1,83 @@
+<%- include('_top') %>
+<% const err = (k) => errors[k] ? `<span class="field__error">${errors[k]}</span>` : ''; %>
+<p class="back"><a href="/admin/products" class="link">← All products</a></p>
+
+<form action="/admin/products<%= product.id ? '/' + product.id : '' %>?_csrf=<%= csrfToken %>" method="post" enctype="multipart/form-data" class="grid-2 grid-2--wide" novalidate>
+  <section class="card">
+    <h2 class="card__title">Details</h2>
+    <div class="field <%= errors.name ? 'has-error' : '' %>">
+      <label for="name">Name</label>
+      <input id="name" name="name" class="input" value="<%= product.name || '' %>" required>
+      <%- err('name') %>
+    </div>
+    <div class="field">
+      <label for="short_description">Short description</label>
+      <input id="short_description" name="short_description" class="input" maxlength="255" value="<%= product.short_description || '' %>">
+    </div>
+    <div class="field">
+      <label for="description">Full description</label>
+      <textarea id="description" name="description" rows="6" class="input"><%= product.description || '' %></textarea>
+    </div>
+    <div class="form-row">
+      <div class="field <%= errors.price ? 'has-error' : '' %>">
+        <label for="price">Price</label>
+        <input id="price" name="price" type="number" step="0.01" min="0" class="input" value="<%= product.price ?? '' %>" required>
+        <%- err('price') %>
+      </div>
+      <div class="field <%= errors.compare_price ? 'has-error' : '' %>">
+        <label for="compare_price">Compare-at price <small>(optional)</small></label>
+        <input id="compare_price" name="compare_price" type="number" step="0.01" min="0" class="input" value="<%= product.compare_price ?? '' %>">
+        <%- err('compare_price') %>
+      </div>
+      <div class="field <%= errors.stock ? 'has-error' : '' %>">
+        <label for="stock">Stock</label>
+        <input id="stock" name="stock" type="number" min="0" class="input" value="<%= product.stock ?? 0 %>">
+        <%- err('stock') %>
+      </div>
+    </div>
+    <h3 class="card__sub">Care information</h3>
+    <div class="form-row">
+      <div class="field"><label for="light">Light</label><input id="light" name="light" class="input" value="<%= product.light || 'Bright, indirect' %>"></div>
+      <div class="field"><label for="water">Water</label><input id="water" name="water" class="input" value="<%= product.water || 'Weekly' %>"></div>
+      <div class="field"><label for="size">Size</label><input id="size" name="size" class="input" value="<%= product.size || 'Medium' %>"></div>
+    </div>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <h2 class="card__title">Image</h2>
+      <div class="field <%= errors.image ? 'has-error' : '' %>">
+        <div class="upload">
+          <img src="<%= product.image || '/assets/icons/divider-leaf.png' %>" alt="" class="upload__preview" data-preview>
+          <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-preview-input>
+        </div>
+        <span class="field__hint">JPG, PNG or WebP, max 3 MB. Square images look best.</span>
+        <%- err('image') %>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Organisation</h2>
+      <span class="label">Categories</span>
+      <% categories.forEach(c => { %>
+        <label class="check"><input type="checkbox" name="categories" value="<%= c.id %>" <%= (product.category_ids || []).includes(c.id) ? 'checked' : '' %>> <%= c.name %></label>
+      <% }) %>
+      <span class="label">Options</span>
+      <label class="check"><input type="checkbox" name="is_active" value="1" <%= product.is_active ? 'checked' : '' %>> Visible in shop</label>
+      <label class="check"><input type="checkbox" name="is_featured" value="1" <%= product.is_featured ? 'checked' : '' %>> Featured on home page</label>
+      <label class="check"><input type="checkbox" name="pet_friendly" value="1" <%= product.pet_friendly ? 'checked' : '' %>> Pet friendly</label>
+    </section>
+
+    <div class="form-actions">
+      <button class="btn btn--lg"><%= product.id ? 'Save Changes' : 'Create Product' %></button>
+    </div>
+  </div>
+</form>
+
+<% if (product.id) { %>
+  <form action="/admin/products/<%= product.id %>/delete" method="post" class="danger-zone" data-confirm="Delete this product? This cannot be undone.">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn btn--danger">Delete Product</button>
+  </form>
+<% } %>
+<%- include('_bottom') %>

@@ -1,0 +1,19 @@
+<div class="order-items">
+  <% items.forEach(i => { %>
+    <div class="order-item">
+      <img src="<%= i.image %>" alt="">
+      <div><strong><%= i.product_name %></strong><small><%= i.quantity %> × <%= h.money(i.unit_price) %></small></div>
+      <span><%= h.money(i.line_total) %></span>
+    </div>
+  <% }) %>
+  <dl class="totals totals--compact">
+    <div><dt>Subtotal</dt><dd><%= h.money(order.subtotal) %></dd></div>
+    <% if (Number(order.discount)) { %><div class="totals__discount"><dt>Discount<%= order.coupon_code ? ` (${order.coupon_code})` : '' %></dt><dd>−<%= h.money(order.discount) %></dd></div><% } %>
+    <div><dt>Shipping</dt><dd><%= Number(order.shipping) ? h.money(order.shipping) : 'Free' %></dd></div>
+    <div class="totals__grand"><dt>Total</dt><dd><%= h.money(order.total) %></dd></div>
+  </dl>
+  <div class="order-address">
+    <small>Delivering to</small>
+    <p><%= order.customer_name %><br><%= order.address %><br><%= order.city %>, <%= order.state %> <%= order.postal_code %><br><%= order.phone %></p>
+  </div>
+</div>

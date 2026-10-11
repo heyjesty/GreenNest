@@ -1,0 +1,125 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <div class="container">
+    <nav class="breadcrumb breadcrumb--dark" aria-label="Breadcrumb">
+      <a href="/">Home</a><span aria-hidden="true">/</span><a href="/shop">Shop</a><span aria-hidden="true">/</span><span aria-current="page"><%= product.name %></span>
+    </nav>
+  </div>
+
+  <section class="section section--tight">
+    <div class="container pdp">
+      <div class="pdp__media">
+        <img src="<%= product.image %>" alt="<%= product.name %>">
+        <% if (product.compare_price) { %><span class="product__tag product__tag--lg">Save <%= Math.round((1 - product.price / product.compare_price) * 100) %>%</span><% } %>
+      </div>
+
+      <div class="pdp__info">
+        <p class="eyebrow"><%= product.category_names || 'Plants' %></p>
+        <h1 class="pdp__title"><%= product.name %></h1>
+
+        <% if (product.review_count) { %>
+          <a href="#reviews" class="rating"><span class="rating__stars"><%= h.stars(product.avg_rating) %></span> <%= product.avg_rating %> · <%= product.review_count %> review<%= product.review_count > 1 ? 's' : '' %></a>
+        <% } %>
+
+        <p class="pdp__price">
+          <%= h.money(product.price) %>
+          <% if (product.compare_price) { %><s><%= h.money(product.compare_price) %></s><% } %>
+        </p>
+        <p class="pdp__lead"><%= product.short_description %></p>
+
+        <ul class="care-facts">
+          <li><svg><use href="#i-sun"/></svg><span><small>Light</small><%= product.light %></span></li>
+          <li><svg><use href="#i-drop"/></svg><span><small>Water</small><%= product.water %></span></li>
+          <li><svg><use href="#i-ruler"/></svg><span><small>Size</small><%= product.size %></span></li>
+          <li><svg><use href="#i-paw"/></svg><span><small>Pets</small><%= product.pet_friendly ? 'Pet friendly' : 'Keep away from pets' %></span></li>
+        </ul>
+
+        <% if (product.stock > 0) { %>
+          <p class="stock <%= product.stock <= 5 ? 'stock--low' : '' %>">
+            <svg><use href="#i-check"/></svg><%= product.stock <= 5 ? `Only ${product.stock} left — order soon` : 'In stock, ready to ship' %>
+          </p>
+          <form action="/cart/add" method="post" class="pdp__buy js-add-to-cart">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="productId" value="<%= product.id %>">
+            <div class="qty" data-qty>
+              <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+              <input type="number" name="quantity" value="1" min="1" max="<%= Math.min(product.stock, 20) %>" aria-label="Quantity">
+              <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+            </div>
+            <button class="btn btn--dark btn--lg"><svg class="btn__icon"><use href="#i-cart"/></svg> Add to Cart</button>
+          </form>
+        <% } else { %>
+          <p class="stock stock--out">Currently out of stock</p>
+        <% } %>
+
+        <ul class="perks">
+          <li><svg><use href="#i-truck"/></svg> Free shipping over <%= h.money(50) %></li>
+          <li><svg><use href="#i-shield"/></svg> Secure, damage-free packing</li>
+          <li><svg><use href="#i-return"/></svg> 30-day happy plant guarantee</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container pdp-details">
+      <div class="panel">
+        <h2 class="panel__title">About this plant</h2>
+        <p class="prose-text"><%= product.description %></p>
+      </div>
+
+      <div class="panel" id="reviews">
+        <h2 class="panel__title">Customer Reviews</h2>
+        <% if (reviews.length) { %>
+          <ul class="review-list">
+            <% reviews.forEach(r => { %>
+              <li>
+                <div class="review-list__head">
+                  <strong><%= r.user_name %></strong>
+                  <span class="rating__stars"><%= h.stars(r.rating) %></span>
+                </div>
+                <p><%= r.comment %></p>
+                <time><%= h.formatDate(r.created_at) %></time>
+              </li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p class="muted">No reviews yet — be the first to share your experience.</p>
+        <% } %>
+
+        <% if (user) { %>
+          <form action="/shop/<%= product.slug %>/reviews" method="post" class="review-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <h3><%= userReview ? 'Update your review' : 'Write a review' %></h3>
+            <fieldset class="star-input">
+              <legend class="sr-only">Rating</legend>
+              <% for (let s = 5; s >= 1; s--) { %>
+                <input type="radio" id="star<%= s %>" name="rating" value="<%= s %>" <%= (userReview ? userReview.rating : 5) === s ? 'checked' : '' %>>
+                <label for="star<%= s %>" title="<%= s %> stars">★</label>
+              <% } %>
+            </fieldset>
+            <textarea name="comment" rows="3" class="input" placeholder="How is your plant doing?" required minlength="5"><%= userReview ? userReview.comment : '' %></textarea>
+            <button class="btn btn--dark">Submit Review</button>
+          </form>
+        <% } else { %>
+          <p class="muted"><a href="/login" class="link">Sign in</a> to write a review.</p>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <% if (related.length) { %>
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title section-title--sm">You May Also Like</h2>
+      <div class="products products--related">
+        <% related.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

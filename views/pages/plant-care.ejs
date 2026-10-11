@@ -1,0 +1,100 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <%- include('../partials/page-hero', {
+    bg: 'care', heading: 'Plant Care Made Simple',
+    subheading: 'Get tips and guides to keep your plants happy and healthy — whether it’s your first plant or your fiftieth.',
+    breadcrumbs: [{ label: 'Plant Care' }]
+  }) %>
+
+  <!-- Essentials -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">The Four Essentials</h2>
+      <div class="divider" aria-hidden="true"><img src="/assets/icons/divider-leaf.png" alt=""></div>
+      <div class="value-grid">
+        <div class="value-card">
+          <span class="value-card__svg"><svg><use href="#i-sun"/></svg></span>
+          <h3>Light</h3>
+          <p>Most houseplants love bright, indirect light. Keep them near a window but out of harsh midday sun.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-card__svg"><svg><use href="#i-drop"/></svg></span>
+          <h3>Water</h3>
+          <p>Water when the top 3–5 cm of soil is dry. Overwatering is the most common cause of plant problems.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-card__svg"><svg><use href="#i-leaf"/></svg></span>
+          <h3>Humidity</h3>
+          <p>Tropical plants enjoy humidity. Group plants together or use a pebble tray in dry, heated rooms.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-card__svg"><svg><use href="#i-ruler"/></svg></span>
+          <h3>Feeding</h3>
+          <p>Feed with a diluted liquid fertiliser once a month in spring and summer. Pause in winter.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Watering schedule table -->
+  <section class="section section--alt">
+    <div class="container">
+      <h2 class="section-title section-title--sm">Quick Watering Schedule</h2>
+      <div class="table-wrap panel">
+        <table class="table table--orders">
+          <thead><tr><th>Plant</th><th>Light</th><th>Water</th><th>Difficulty</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Plant">Snake Plant</td><td data-label="Light">Low – bright</td><td data-label="Water">Every 2–3 weeks</td><td data-label="Difficulty"><span class="pill pill--green">Easy</span></td></tr>
+            <tr><td data-label="Plant">ZZ Plant</td><td data-label="Light">Low – bright</td><td data-label="Water">Every 2–3 weeks</td><td data-label="Difficulty"><span class="pill pill--green">Easy</span></td></tr>
+            <tr><td data-label="Plant">Pothos</td><td data-label="Light">Low – bright</td><td data-label="Water">Every 1–2 weeks</td><td data-label="Difficulty"><span class="pill pill--green">Easy</span></td></tr>
+            <tr><td data-label="Plant">Peace Lily</td><td data-label="Light">Medium</td><td data-label="Water">Weekly</td><td data-label="Difficulty"><span class="pill pill--green">Easy</span></td></tr>
+            <tr><td data-label="Plant">Monstera</td><td data-label="Light">Bright, indirect</td><td data-label="Water">Every 1–2 weeks</td><td data-label="Difficulty"><span class="pill pill--amber">Moderate</span></td></tr>
+            <tr><td data-label="Plant">Fiddle Leaf Fig</td><td data-label="Light">Bright, indirect</td><td data-label="Water">Weekly</td><td data-label="Difficulty"><span class="pill pill--amber">Moderate</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Guides -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Care Guides</h2>
+      <p class="blog__intro">In-depth guides written by our plant experts</p>
+      <div class="posts posts--3">
+        <% guides.forEach(post => { %><%- include('../partials/post-card', { post, showMeta: true }) %><% }) %>
+      </div>
+      <div class="center"><a href="/blog" class="btn btn--dark btn--explore">All Articles</a></div>
+    </div>
+  </section>
+
+  <!-- Easy plants -->
+  <% if (easyPlants.length) { %>
+  <section class="section section--alt">
+    <div class="container">
+      <h2 class="section-title section-title--sm">Easy-Care Plants For Beginners</h2>
+      <div class="products">
+        <% easyPlants.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container narrow">
+      <h2 class="section-title section-title--sm">Common Questions</h2>
+      <div class="accordion">
+        <details><summary>Why are my plant’s leaves turning yellow?</summary><p>Yellow leaves are most often a sign of overwatering. Let the soil dry out more between waterings and make sure the pot drains freely. Older lower leaves also yellow naturally as a plant grows.</p></details>
+        <details><summary>How do I know if my plant needs more light?</summary><p>Leggy, stretched growth, small new leaves and plants leaning strongly toward the window are signs your plant wants more light.</p></details>
+        <details><summary>Should I mist my plants?</summary><p>Misting gives only a brief humidity boost. Grouping plants or using a pebble tray or humidifier is more effective for humidity-loving plants.</p></details>
+        <details><summary>When should I repot?</summary><p>Usually every 12–18 months in spring, or when roots grow out of the drainage holes. Go up only one pot size at a time.</p></details>
+      </div>
+      <p class="center-text">Still have questions? <a href="/contact" class="link">Ask our plant experts</a>.</p>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,41 @@
+<%
+  const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/shop', label: 'Shop' },
+    { href: '/about', label: 'About Us' },
+    { href: '/plant-care', label: 'Plant Care' },
+    { href: '/blog', label: 'Blog' },
+  ];
+  const isActive = (href) => href === '/' ? path === '/' : path === href || path.startsWith(href + '/');
+%>
+<header class="header" id="top">
+  <div class="container nav">
+    <a href="/" class="logo" aria-label="GreenNest home">
+      <img src="/assets/icons/logo-mark.png" alt="" width="28" height="28">
+      <span>GreenNest</span>
+    </a>
+
+    <nav class="nav__menu" id="navMenu" aria-label="Main">
+      <% navItems.forEach(item => { %>
+        <a href="<%= item.href %>" class="<%= isActive(item.href) ? 'is-active' : '' %>" <%- isActive(item.href) ? 'aria-current="page"' : '' %>><%= item.label %></a>
+      <% }) %>
+      <a href="/contact" class="nav__extra <%= isActive('/contact') ? 'is-active' : '' %>">Contact</a>
+      <a href="<%= user ? '/account' : '/login' %>" class="nav__extra"><%= user ? 'My Account' : 'Sign In' %></a>
+    </nav>
+
+    <div class="nav__actions">
+      <a href="/shop" class="btn btn--primary nav__cta">Shop Now</a>
+      <a href="<%= user ? (user.role === 'admin' ? '/admin' : '/account') : '/login' %>" class="nav__icon nav__account" aria-label="<%= user ? 'My account' : 'Sign in' %>" title="<%= user ? user.name : 'Sign in' %>">
+        <svg><use href="#i-user"/></svg>
+      </a>
+      <a href="/cart" class="nav__cart" aria-label="Cart, <%= cartCount %> items">
+        <svg><use href="#i-cart"/></svg>
+        <span class="cart-badge" data-cart-count <%- cartCount ? '' : 'hidden' %>><%= cartCount %></span>
+      </a>
+      <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+<%- include('flash') %>

@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <section class="section">
+    <div class="container narrow">
+      <div class="success panel">
+        <span class="success__icon"><svg><use href="#i-check"/></svg></span>
+        <h1 class="section-title section-title--sm">Thank you, <%= order.customer_name.split(' ')[0] %>!</h1>
+        <p class="success__lead">Your order <strong><%= order.order_number %></strong> has been placed. We’ve saved your details and will prepare your plants with care.</p>
+
+        <div class="order-meta">
+          <div><small>Order number</small><strong><%= order.order_number %></strong></div>
+          <div><small>Date</small><strong><%= h.formatDate(order.created_at) %></strong></div>
+          <div><small>Total</small><strong><%= h.money(order.total) %></strong></div>
+          <div><small>Payment</small><strong>Cash on Delivery</strong></div>
+        </div>
+
+        <%- include('../partials/order-items', { items, order }) %>
+
+        <div class="success__actions">
+          <% if (user) { %><a href="/account/orders/<%= order.order_number %>" class="btn btn--dark">Track Order</a><% } %>
+          <a href="/shop" class="btn btn--ghost">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

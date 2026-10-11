@@ -1,0 +1,13 @@
+<% if (pager.pages > 1) { %>
+<nav class="pagination" aria-label="Pagination">
+  <% if (pager.current > 1) { %>
+    <a href="<%= h.withQuery(query, { page: pager.current - 1 }) %>" class="pagination__link" aria-label="Previous page">‹</a>
+  <% } %>
+  <% for (let i = 1; i <= pager.pages; i++) { %>
+    <a href="<%= h.withQuery(query, { page: i }) %>" class="pagination__link <%= i === pager.current ? 'is-current' : '' %>" <%- i === pager.current ? 'aria-current="page"' : '' %>><%= i %></a>
+  <% } %>
+  <% if (pager.current < pager.pages) { %>
+    <a href="<%= h.withQuery(query, { page: pager.current + 1 }) %>" class="pagination__link" aria-label="Next page">›</a>
+  <% } %>
+</nav>
+<% } %>

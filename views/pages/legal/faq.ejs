@@ -1,0 +1,11 @@
+<%- include('../../partials/legal-layout-top') %>
+<div class="accordion accordion--flat">
+  <details open><summary>How long does delivery take?</summary><p>Orders are prepared within 1–2 business days and usually arrive within 3–5 business days.</p></details>
+  <details><summary>Is shipping free?</summary><p>Yes — shipping is free on orders over <%= h.money(50) %>. Smaller orders have a flat <%= h.money(5.99) %> fee.</p></details>
+  <details><summary>What if my plant arrives damaged?</summary><p>Contact us within 30 days with a photo and your order number and we’ll replace or refund it. See our <a href="/shipping-returns" class="link">Return and Shipping</a> policy.</p></details>
+  <details><summary>How do I use a discount code?</summary><p>Add your plants to the cart, enter the code in the “Coupon code” box and click Apply. The discount appears in your order summary.</p></details>
+  <details><summary>Which payment methods do you accept?</summary><p>We currently accept cash on delivery.</p></details>
+  <details><summary>Can I cancel my order?</summary><p>Yes, while your order is still pending you can cancel it from <a href="/account" class="link">My Account</a>.</p></details>
+  <details><summary>Do I need an account to order?</summary><p>No, you can check out as a guest. An account lets you track orders and check out faster.</p></details>
+</div>
+<%- include('../../partials/legal-layout-bottom') %>

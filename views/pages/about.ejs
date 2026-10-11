@@ -1,0 +1,103 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <%- include('../partials/page-hero', {
+    bg: 'newsletter', heading: 'About GreenNest',
+    subheading: 'We believe every home deserves a little more green — and every plant deserves a home that loves it.',
+    breadcrumbs: [{ label: 'About Us' }]
+  }) %>
+
+  <!-- Story -->
+  <section class="section">
+    <div class="container split">
+      <div class="split__media">
+        <img src="/assets/images/why-plant.jpg" alt="A healthy potted plant" loading="lazy">
+      </div>
+      <div class="split__text">
+        <p class="eyebrow">Our Story</p>
+        <h2 class="section-title section-title--left">Rooted in a love for living things</h2>
+        <p>GreenNest started with a simple idea: buying plants should feel as joyful as growing them. Too often, plants arrive stressed, damaged or without the guidance new owners need. We set out to change that.</p>
+        <p>Today we handpick every plant from trusted growers, pack each one by hand to arrive safe and healthy, and stay by your side with practical care advice long after delivery.</p>
+        <a href="/shop" class="btn btn--dark">Shop Our Plants</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats stats--static" aria-label="GreenNest in numbers">
+    <div class="stats__grid">
+      <div class="stat"><img src="/assets/icons/stat-customers.png" alt="" class="stat__icon"><strong class="stat__num">1,000+</strong><span class="stat__label">Happy Customers</span></div>
+      <div class="stat"><img src="/assets/icons/stat-plants-sold.png" alt="" class="stat__icon"><strong class="stat__num">6,000+</strong><span class="stat__label">Plants Sold</span></div>
+      <div class="stat"><img src="/assets/icons/stat-varieties.png" alt="" class="stat__icon"><strong class="stat__num">520+</strong><span class="stat__label">Plant Varieties</span></div>
+      <div class="stat"><img src="/assets/icons/stat-rating.png" alt="" class="stat__icon"><strong class="stat__num">4.8 <svg class="stat__star"><use href="#i-star-half"/></svg></strong><span class="stat__label">Customer Rating</span></div>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">What We Stand For</h2>
+      <div class="divider" aria-hidden="true"><img src="/assets/icons/divider-leaf.png" alt=""></div>
+      <div class="value-grid">
+        <div class="value-card">
+          <img src="/assets/icons/why-handpicked.png" alt="">
+          <h3>Handpicked Plants</h3>
+          <p>Every plant is inspected for health, shape and vigour before it earns a place in our shop.</p>
+        </div>
+        <div class="value-card">
+          <img src="/assets/icons/why-secure-packing.png" alt="">
+          <h3>Secure Packing</h3>
+          <p>Custom, plastic-light packaging keeps soil in place and leaves protected from our door to yours.</p>
+        </div>
+        <div class="value-card">
+          <img src="/assets/icons/why-expert-support.png" alt="">
+          <h3>Expert Support</h3>
+          <p>Questions about light, watering or repotting? Our plant experts are always happy to help.</p>
+        </div>
+        <div class="value-card">
+          <img src="/assets/icons/why-easy-returns.png" alt="">
+          <h3>Easy Returns</h3>
+          <p>If your plant arrives unhappy, we’ll replace or refund it within 30 days — no fuss.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="care care--auto">
+    <div class="container">
+      <h2 class="care__title care__title--center">From Our Greenhouse to Your Home</h2>
+      <ol class="steps">
+        <li class="glass-card glass-card--step"><span class="steps__num">01</span><h3>Selected</h3><p>We choose healthy, well-rooted plants from trusted local growers.</p></li>
+        <li class="glass-card glass-card--step"><span class="steps__num">02</span><h3>Prepared</h3><p>Each plant is cleaned, checked and acclimatised for indoor life.</p></li>
+        <li class="glass-card glass-card--step"><span class="steps__num">03</span><h3>Packed</h3><p>Hand-packed in protective, eco-friendly materials.</p></li>
+        <li class="glass-card glass-card--step"><span class="steps__num">04</span><h3>Delivered</h3><p>Arrives at your door with a care card to help it thrive.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <% if (testimonials.length) { %>
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title">Our Happy Customers Say It Best</h2>
+      <div class="testimonials__grid">
+        <% testimonials.forEach((t, i) => { %>
+          <figure class="review">
+            <img src="<%= t.image %>" alt="<%= t.name %>" class="review__img review__img--<%= i + 1 %>" loading="lazy">
+            <div class="review__body">
+              <blockquote><%= t.message %></blockquote>
+              <div class="review__stars" aria-label="<%= t.rating %> out of 5 stars"><%= '★'.repeat(t.rating) %></div>
+              <figcaption><strong><%= t.name %></strong><span><%= t.role %></span></figcaption>
+            </div>
+          </figure>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <%- include('../partials/newsletter', { formId: 'about' }) %>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,46 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+<%
+  const flow = ['pending', 'processing', 'shipped', 'delivered'];
+  const reached = flow.indexOf(order.status);
+%>
+
+<main id="main">
+  <%- include('../partials/page-hero', { bg: 'care', heading: 'Order ' + order.order_number, breadcrumbs: [{ href: '/account', label: 'My Account' }, { label: order.order_number }] }) %>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="panel">
+        <div class="order-head">
+          <div>
+            <h2 class="panel__title">Order Status</h2>
+            <p class="muted">Placed on <%= h.formatDate(order.created_at, { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+          </div>
+          <span class="status status--<%= order.status %>"><%= order.status %></span>
+        </div>
+
+        <% if (order.status === 'cancelled') { %>
+          <div class="alert alert--error">This order was cancelled.</div>
+        <% } else { %>
+          <ol class="tracker">
+            <% flow.forEach((s, i) => { %>
+              <li class="<%= i <= reached ? 'is-done' : '' %> <%= i === reached ? 'is-current' : '' %>"><span></span><%= s %></li>
+            <% }) %>
+          </ol>
+        <% } %>
+
+        <%- include('../partials/order-items', { items, order }) %>
+
+        <% if (order.status === 'pending') { %>
+          <form action="/account/orders/<%= order.order_number %>/cancel" method="post" class="order-cancel" data-confirm="Cancel this order?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn--ghost btn--danger">Cancel Order</button>
+          </form>
+        <% } %>
+      </div>
+      <p class="center-text"><a href="/account" class="link">← Back to my orders</a></p>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,184 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="container hero__content">
+      <h1 class="hero__title">Discover beautiful indoor Plants for every corner of your home</h1>
+      <p class="hero__text">Bring nature indoors and create<br> a healthier, happier space</p>
+      <div class="hero__actions">
+        <a href="/shop" class="btn btn--primary btn--hero">Shop Now</a>
+        <a href="/plant-care" class="hero__video">
+          <span class="hero__play" aria-hidden="true"></span>
+          Watch video
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- stats -->
+  <section class="stats" aria-label="GreenNest in numbers">
+    <div class="stats__grid">
+      <div class="stat">
+        <img src="/assets/icons/stat-customers.png" alt="" class="stat__icon">
+        <strong class="stat__num">1,000+</strong>
+        <span class="stat__label">Happy Customers</span>
+      </div>
+      <div class="stat">
+        <img src="/assets/icons/stat-plants-sold.png" alt="" class="stat__icon">
+        <strong class="stat__num">6,000+</strong>
+        <span class="stat__label">Plants Sold</span>
+      </div>
+      <div class="stat">
+        <img src="/assets/icons/stat-varieties.png" alt="" class="stat__icon">
+        <strong class="stat__num">520+</strong>
+        <span class="stat__label">Plant Varieties</span>
+      </div>
+      <div class="stat">
+        <img src="/assets/icons/stat-rating.png" alt="" class="stat__icon">
+        <strong class="stat__num">4.8 <svg class="stat__star"><use href="#i-star-half"/></svg></strong>
+        <span class="stat__label">Customer Rating</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WHY SHOP ================= -->
+  <section class="why">
+    <div class="container">
+      <h2 class="section-title">Why Shop with GreenNest?</h2>
+      <div class="divider" aria-hidden="true"><img src="/assets/icons/divider-leaf.png" alt=""></div>
+
+      <div class="why__grid">
+        <div class="why__col why__col--left">
+          <div class="feature">
+            <img src="/assets/icons/why-handpicked.png" alt="" class="feature__icon">
+            <div>
+              <h3 class="feature__title">Handpicked Plants</h3>
+              <p class="feature__text">Carefully Selected for your space</p>
+            </div>
+          </div>
+          <div class="feature">
+            <img src="/assets/icons/why-secure-packing.png" alt="" class="feature__icon">
+            <div>
+              <h3 class="feature__title">Secure Packing</h3>
+              <p class="feature__text">Safe &amp; Damage-Free Delivery</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="why__image">
+          <img src="/assets/images/why-plant.jpg" alt="Potted green plant" width="480" height="445">
+        </div>
+
+        <div class="why__col why__col--right">
+          <div class="feature">
+            <img src="/assets/icons/why-expert-support.png" alt="" class="feature__icon">
+            <div>
+              <h3 class="feature__title">Expert Support</h3>
+              <p class="feature__text">We’re Here To Help You Grow</p>
+            </div>
+          </div>
+          <div class="feature">
+            <img src="/assets/icons/why-easy-returns.png" alt="" class="feature__icon">
+            <div>
+              <h3 class="feature__title">Easy Returns</h3>
+              <p class="feature__text">Hassle-Free Plant Returns</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PLANT CARE ================= -->
+  <section class="care">
+    <div class="container care__inner">
+      <div class="care__intro">
+        <h2 class="care__title">Plant Care<br> Made Simple</h2>
+        <p class="care__text">Get tips and guides to keep your plants happy and healthy.</p>
+        <a href="/plant-care" class="btn btn--light">Explore Guides</a>
+      </div>
+      <div class="care__cards">
+        <a href="/blog/the-complete-watering-guide" class="glass-card">
+          <svg class="glass-card__icon glass-card__icon--drop"><use href="#i-drop"/></svg>
+          <h3>Watering Guide</h3>
+          <p>Learn the right way to<br> water your plants</p>
+        </a>
+        <a href="/blog?category=Care%20Tips" class="glass-card">
+          <img src="/assets/icons/care-tips.png" alt="" class="glass-card__icon">
+          <h3>Care Tips</h3>
+          <p>Expert tips for<br> plant care</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAVORITES ================= -->
+  <section class="favorites" id="favorites">
+    <div class="container">
+      <h2 class="section-title">Our Favorite Plants</h2>
+
+      <div class="tabs" role="tablist" aria-label="Filter plants">
+        <button class="tab is-active" role="tab" aria-selected="true" data-filter="all">All Plants</button>
+        <button class="tab" role="tab" aria-selected="false" data-filter="indoor">Indoor</button>
+        <button class="tab" role="tab" aria-selected="false" data-filter="outdoor">Outdoor</button>
+        <button class="tab" role="tab" aria-selected="false" data-filter="low-light">Low Light</button>
+      </div>
+
+      <div class="products">
+        <% featured.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+      </div>
+
+      <div class="center"><a href="/shop" class="btn btn--dark btn--explore">Explore More</a></div>
+    </div>
+  </section>
+
+  <!-- ================= SALE BANNER ================= -->
+  <section class="sale">
+    <div class="container">
+      <h2 class="sale__title">“Spring into Green -<br><span class="sale__badge">25%</span> Off All Indoor Plants!”</h2>
+      <p class="sale__text">“Bring life to your home with vibrant, easy-care greens - now at a special spring discount”</p>
+      <a href="/shop?category=indoor" class="btn btn--dark btn--sale">Shop the Sale</a>
+      <p class="sale__code">Use code <strong>SPRING25</strong> at checkout</p>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title">Our Happy Customers Say It Best</h2>
+      <div class="testimonials__grid">
+        <% testimonials.forEach((t, i) => { %>
+          <figure class="review">
+            <img src="<%= t.image %>" alt="<%= t.name %> holding a potted plant" class="review__img review__img--<%= i + 1 %>" loading="lazy">
+            <div class="review__body">
+              <blockquote><%= t.message %></blockquote>
+              <div class="review__stars" aria-label="<%= t.rating %> out of 5 stars"><%= '★'.repeat(t.rating) %></div>
+              <figcaption><strong><%= t.name %></strong><span><%= t.role %></span></figcaption>
+            </div>
+          </figure>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <%- include('../partials/newsletter') %>
+
+  <!-- ================= BLOG ================= -->
+  <section class="blog">
+    <div class="container">
+      <h2 class="section-title">From the GreenVibe Blog</h2>
+      <p class="blog__intro">Grow your plant knowledge with expert tips,<br> care guides, and a little leafy inspiration</p>
+
+      <div class="posts">
+        <% posts.forEach(post => { %><%- include('../partials/post-card', { post }) %><% }) %>
+      </div>
+
+      <div class="center"><a href="/blog" class="btn btn--dark btn--explore btn--explore-lg">Explore More</a></div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

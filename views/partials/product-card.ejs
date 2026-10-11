@@ -1,0 +1,20 @@
+<article class="product" data-cat="<%= p.category_slugs || '' %>">
+  <a href="/shop/<%= p.slug %>" class="product__img" tabindex="-1" aria-hidden="true">
+    <img src="<%= p.image %>" alt="" loading="lazy">
+    <% if (p.compare_price) { %><span class="product__tag">Sale</span><% } else if (p.stock < 1) { %><span class="product__tag product__tag--muted">Sold out</span><% } %>
+  </a>
+  <div class="product__info">
+    <div>
+      <h3 class="product__name"><a href="/shop/<%= p.slug %>"><%= p.name %></a></h3>
+      <p class="product__price">
+        <%= h.money(p.price) %>
+        <% if (p.compare_price) { %><s class="product__was"><%= h.money(p.compare_price) %></s><% } %>
+      </p>
+    </div>
+    <form action="/cart/add" method="post" class="js-add-to-cart">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="productId" value="<%= p.id %>">
+      <button class="product__cart" aria-label="Add <%= p.name %> to cart" <%= p.stock < 1 ? 'disabled' : '' %>><svg><use href="#i-cart"/></svg></button>
+    </form>
+  </div>
+</article>

@@ -1,0 +1,55 @@
+<%- include('_top') %>
+<p class="back"><a href="/admin/orders" class="link">← All orders</a></p>
+<div class="grid-2 grid-2--wide">
+  <section class="card">
+    <div class="card__head">
+      <h2 class="card__title">Items</h2>
+      <span class="status status--<%= order.status %>"><%= order.status %></span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>
+          <% items.forEach(i => { %>
+            <tr>
+              <td data-label="Product"><span class="cell-product"><img src="<%= i.image %>" alt=""><%= i.product_name %></span></td>
+              <td data-label="Price"><%= h.money(i.unit_price) %></td>
+              <td data-label="Qty"><%= i.quantity %></td>
+              <td data-label="Total"><%= h.money(i.line_total) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <dl class="totals">
+      <div><dt>Subtotal</dt><dd><%= h.money(order.subtotal) %></dd></div>
+      <% if (Number(order.discount)) { %><div><dt>Discount<%= order.coupon_code ? ' (' + order.coupon_code + ')' : '' %></dt><dd>−<%= h.money(order.discount) %></dd></div><% } %>
+      <div><dt>Shipping</dt><dd><%= Number(order.shipping) ? h.money(order.shipping) : 'Free' %></dd></div>
+      <div class="totals__grand"><dt>Total</dt><dd><%= h.money(order.total) %></dd></div>
+    </dl>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <h2 class="card__title">Update status</h2>
+      <form action="/admin/orders/<%= order.id %>/status" method="post" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label for="status" class="sr-only">Status</label>
+        <select id="status" name="status" class="input">
+          <% statuses.forEach(s => { %><option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+        </select>
+        <button class="btn">Save</button>
+      </form>
+      <p class="muted small">Cancelling an order returns its items to stock automatically.</p>
+    </section>
+    <section class="card">
+      <h2 class="card__title">Customer</h2>
+      <p><strong><%= order.customer_name %></strong><br><a href="mailto:<%= order.email %>" class="link"><%= order.email %></a><br><%= order.phone %></p>
+      <h3 class="card__sub">Delivery address</h3>
+      <p><%= order.address %><br><%= order.city %>, <%= order.state %> <%= order.postal_code %></p>
+      <% if (order.notes) { %><h3 class="card__sub">Notes</h3><p><%= order.notes %></p><% } %>
+      <p class="muted small">Placed <%= new Date(order.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %> · Cash on delivery<%= order.user_id ? '' : ' · Guest checkout' %></p>
+    </section>
+  </div>
+</div>
+<%- include('_bottom') %>

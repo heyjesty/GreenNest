@@ -1,0 +1,49 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <%- include('../partials/page-hero', {
+    bg: 'newsletter', heading: 'From the GreenVibe Blog',
+    subheading: 'Grow your plant knowledge with expert tips, care guides, and a little leafy inspiration.',
+    breadcrumbs: category ? [{ href: '/blog', label: 'Blog' }, { label: category }] : [{ label: 'Blog' }]
+  }) %>
+
+  <section class="section">
+    <div class="container">
+      <div class="blog-toolbar">
+        <div class="chips" role="list">
+          <a href="/blog" class="chip <%= !category ? 'is-active' : '' %>" role="listitem">All</a>
+          <% categories.forEach(c => { %>
+            <a href="/blog?category=<%= encodeURIComponent(c.category) %>" class="chip <%= category === c.category ? 'is-active' : '' %>" role="listitem"><%= c.category %></a>
+          <% }) %>
+        </div>
+        <form action="/blog" method="get" class="search-inline">
+          <% if (category) { %><input type="hidden" name="category" value="<%= category %>"><% } %>
+          <label for="blogq" class="sr-only">Search articles</label>
+          <div class="input-icon">
+            <svg><use href="#i-search"/></svg>
+            <input type="search" id="blogq" name="q" value="<%= q %>" placeholder="Search articles..." class="input">
+          </div>
+        </form>
+      </div>
+
+      <% if (posts.length) { %>
+        <div class="posts">
+          <% posts.forEach(post => { %><%- include('../partials/post-card', { post, showMeta: true }) %><% }) %>
+        </div>
+        <%- include('../partials/pagination') %>
+      <% } else { %>
+        <div class="empty">
+          <img src="/assets/icons/divider-leaf.png" alt="" class="empty__icon">
+          <h2>No articles found</h2>
+          <p>Try another search or browse all articles.</p>
+          <a href="/blog" class="btn btn--dark">View All Articles</a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <%- include('../partials/newsletter', { formId: 'blog' }) %>
+</main>
+
+<%- include('../partials/footer') %>

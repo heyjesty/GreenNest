@@ -1,0 +1,17 @@
+<%
+  const heroBg = typeof bg !== 'undefined' ? bg : 'care';
+  const crumbs = typeof breadcrumbs !== 'undefined' ? breadcrumbs : [];
+%>
+<section class="page-hero page-hero--<%= heroBg %>">
+  <div class="container page-hero__inner">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <% crumbs.forEach(c => { %>
+        <span aria-hidden="true">/</span>
+        <% if (c.href) { %><a href="<%= c.href %>"><%= c.label %></a><% } else { %><span aria-current="page"><%= c.label %></span><% } %>
+      <% }) %>
+    </nav>
+    <h1 class="page-hero__title"><%= heading %></h1>
+    <% if (typeof subheading !== 'undefined' && subheading) { %><p class="page-hero__text"><%= subheading %></p><% } %>
+  </div>
+</section>

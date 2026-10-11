@@ -1,0 +1,47 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="main">
+  <article>
+    <header class="article-hero">
+      <div class="container narrow">
+        <nav class="breadcrumb breadcrumb--dark" aria-label="Breadcrumb">
+          <a href="/">Home</a><span aria-hidden="true">/</span><a href="/blog">Blog</a><span aria-hidden="true">/</span>
+          <a href="/blog?category=<%= encodeURIComponent(post.category) %>"><%= post.category %></a>
+        </nav>
+        <p class="eyebrow"><%= post.category %></p>
+        <h1 class="article-hero__title"><%= post.title %></h1>
+        <p class="article-hero__meta">By <%= post.author %> · <%= h.formatDate(post.published_at, { year: 'numeric', month: 'long', day: 'numeric' }) %> · <%= post.read_minutes %> min read</p>
+      </div>
+    </header>
+
+    <div class="container narrow">
+      <figure class="article-cover"><img src="<%= post.image %>" alt=""></figure>
+      <div class="prose">
+        <p class="prose__lead"><%= post.excerpt %></p>
+        <%- post.content %>
+      </div>
+
+      <aside class="article-cta">
+        <div>
+          <h2>Ready to grow your collection?</h2>
+          <p>Browse handpicked, healthy plants delivered to your door.</p>
+        </div>
+        <a href="/shop" class="btn btn--light">Shop Plants</a>
+      </aside>
+    </div>
+  </article>
+
+  <% if (more.length) { %>
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title section-title--sm">Keep Reading</h2>
+      <div class="posts posts--3">
+        <% more.forEach(p => { %><%- include('../partials/post-card', { post: p, showMeta: true }) %><% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>
