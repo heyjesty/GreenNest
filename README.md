@@ -67,6 +67,24 @@ Manage codes in the `coupons` table.
 | `npm run db:setup` | Creates the database and tables if missing, and seeds empty tables |
 | `npm run db:reset` | **Deletes** the database and rebuilds it with starter content |
 
+## Deployment (Vercel + cloud MySQL)
+
+Live site: **https://greennest-shop.vercel.app**. Every push to `main` on GitHub redeploys it automatically.
+
+Vercel can't reach a MySQL server on your own computer, so production uses a cloud MySQL such as TiDB Cloud (free).
+
+1. Create the cloud database and note its host, port, user and password.
+2. In Vercel → Project **greennest** → Settings → Environment Variables, add:
+   `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME=greennest`, `DB_SSL=true`
+   (`SESSION_SECRET` is already set.)
+3. Create the tables and starter content in the cloud database from your PC:
+   ```bash
+   DB_HOST=... DB_PORT=4000 DB_USER=... DB_PASSWORD=... DB_SSL=true ADMIN_PASSWORD=YourStrongPass npm run db:setup
+   ```
+4. Redeploy: `npx vercel deploy --prod` (or push a commit).
+
+Images uploaded in the admin panel are stored in the database (`media` table), because Vercel's file system is read-only.
+
 ## Project structure
 
 ```
