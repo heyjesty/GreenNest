@@ -16,12 +16,62 @@
     </a>
 
     <nav class="nav__menu" id="navMenu" aria-label="Main">
-      <% navItems.forEach(item => { %>
-        <a href="<%= item.href %>" class="<%= isActive(item.href) ? 'is-active' : '' %>" <%- isActive(item.href) ? 'aria-current="page"' : '' %>><%= item.label %></a>
-      <% }) %>
-      <a href="/contact" class="nav__extra <%= isActive('/contact') ? 'is-active' : '' %>">Contact</a>
-      <a href="<%= user ? '/account' : '/login' %>" class="nav__extra"><%= user ? 'My Account' : 'Sign In' %></a>
+      <div class="nav__drawer-head">
+        <a href="/" class="logo logo--drawer" aria-label="GreenNest home">
+          <img src="/assets/icons/logo-mark.png" alt="" width="26" height="26">
+          <span>GreenNest</span>
+        </a>
+        <button type="button" class="nav__close" id="navClose" aria-label="Close menu">&times;</button>
+      </div>
+
+      <% if (user) { %>
+        <div class="nav__user-banner">
+          <div class="nav__user-avatar"><svg><use href="#i-user"/></svg></div>
+          <div class="nav__user-meta">
+            <span class="nav__user-greeting">Welcome back,</span>
+            <strong><%= user.name %></strong>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="nav__guest-banner">
+          <p>Join GreenNest for plant care guides and order tracking.</p>
+          <div class="nav__auth-links">
+            <a href="/login" class="btn btn--sm btn--primary">Sign In</a>
+            <a href="/register" class="btn btn--sm btn--ghost">Register</a>
+          </div>
+        </div>
+      <% } %>
+
+      <form action="/shop" method="get" class="nav__search">
+        <svg><use href="#i-search"/></svg>
+        <input type="search" name="q" placeholder="Search plants..." aria-label="Search plants">
+      </form>
+
+      <div class="nav__links">
+        <% navItems.forEach(item => { %>
+          <a href="<%= item.href %>" class="<%= isActive(item.href) ? 'is-active' : '' %>" <%- isActive(item.href) ? 'aria-current="page"' : '' %>>
+            <span><%= item.label %></span>
+            <svg class="nav__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </a>
+        <% }) %>
+        <a href="/contact" class="nav__extra <%= isActive('/contact') ? 'is-active' : '' %>">
+          <span>Contact</span>
+          <svg class="nav__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <% if (user) { %>
+          <a href="<%= user.role === 'admin' ? '/admin' : '/account' %>" class="nav__extra <%= isActive('/account') || isActive('/admin') ? 'is-active' : '' %>">
+            <span><%= user.role === 'admin' ? 'Admin Dashboard' : 'My Account' %></span>
+            <svg class="nav__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </a>
+        <% } %>
+      </div>
+
+      <div class="nav__drawer-footer">
+        <a href="/shop" class="btn btn--primary btn--block">Explore Plants</a>
+        <p class="nav__help-text">Need help? <a href="/contact">Contact us</a></p>
+      </div>
     </nav>
+    <div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>
 
     <div class="nav__actions">
       <a href="/shop" class="btn btn--primary nav__cta">Shop Now</a>

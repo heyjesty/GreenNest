@@ -27,18 +27,24 @@
     $$('.toast', stack).forEach((t) => setTimeout(() => dismiss(t), 5000));
   }
 
-  /* ---------- Mobile menu ---------- */
+  /* ---------- Mobile menu drawer ---------- */
   const toggle = $('#navToggle');
   const menu = $('#navMenu');
+  const navBackdrop = $('#navBackdrop');
+  const navClose = $('#navClose');
   if (toggle && menu) {
     const setMenu = (open) => {
       menu.classList.toggle('is-open', open);
       toggle.classList.toggle('is-open', open);
+      navBackdrop?.classList.toggle('is-open', open);
+      document.body.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     };
     toggle.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
-    $$('a', menu).forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    navClose?.addEventListener('click', () => setMenu(false));
+    navBackdrop?.addEventListener('click', () => setMenu(false));
+    $$('.nav__links a, .nav__drawer-footer a', menu).forEach((a) => a.addEventListener('click', () => setMenu(false)));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
     window.addEventListener('resize', () => { if (window.innerWidth > 1024) setMenu(false); });
   }
